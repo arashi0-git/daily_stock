@@ -1,0 +1,48 @@
+services:
+  backend:
+    # 本番用設定: ボリュームマウントなし
+    volumes: []
+    environment:
+      - DEBUG=false
+      - ENVIRONMENT=production
+      - SECRET_KEY=${SECRET_KEY:-change-this-secret-key-in-production}
+    # 本番用: リソース制限
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    # 本番用: ログ設定
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  postgres:
+    # 本番用: パフォーマンス設定
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-this-password-in-production}
+    # 本番用: リソース制限
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+
+  redis:
+    # 本番用: リソース制限
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M

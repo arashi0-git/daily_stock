@@ -1,0 +1,10 @@
+services:
+  backend:
+    # 開発用設定: ホットリロードを有効化
+    command: [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload" ]
+    # 開発用: ローカルファイルをマウント
+    volumes:
+      - ./backend:/app:delegated
+    environment:
+      - DEBUG=true
+      - ENVIRONMENT=development

@@ -38,10 +38,10 @@ class ConsumptionProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateConsumptionRecord(ConsumptionRecord record) async {
+  Future<void> updateConsumptionRecord(int recordId, ConsumptionRecordUpdate recordUpdate) async {
     try {
-      final updatedRecord = await _apiService.updateConsumptionRecord(record);
-      final index = _records.indexWhere((r) => r.id == record.id);
+      final updatedRecord = await _apiService.updateConsumptionRecord(recordId, recordUpdate);
+      final index = _records.indexWhere((r) => r.id == recordId);
       if (index != -1) {
         _records[index] = updatedRecord;
         notifyListeners();

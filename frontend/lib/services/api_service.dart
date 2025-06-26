@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/daily_item.dart';
 import '../models/consumption_record.dart';
+import '../models/consumption_recommendation.dart';
 
 class ApiService {
   static const String baseUrl = 'http://localhost:8000/api/v1';
@@ -136,9 +137,9 @@ class ApiService {
     }
   }
 
-  Future<DailyItem> updateItem(DailyItem item) async {
+  Future<DailyItem> updateItem(int itemId, DailyItemUpdate itemUpdate) async {
     try {
-      final response = await put('/items/${item.id}', data: item.toJson());
+      final response = await put('/items/$itemId', data: itemUpdate.toJson());
       return DailyItem.fromJson(response.data);
     } catch (e) {
       throw Exception('商品の更新に失敗しました: $e');
@@ -173,9 +174,9 @@ class ApiService {
     }
   }
 
-  Future<ConsumptionRecord> updateConsumptionRecord(ConsumptionRecord record) async {
+  Future<ConsumptionRecord> updateConsumptionRecord(int recordId, ConsumptionRecordUpdate recordUpdate) async {
     try {
-      final response = await put('/consumption/${record.id}', data: record.toJson());
+      final response = await put('/consumption/$recordId', data: recordUpdate.toJson());
       return ConsumptionRecord.fromJson(response.data);
     } catch (e) {
       throw Exception('消費記録の更新に失敗しました: $e');
@@ -187,6 +188,81 @@ class ApiService {
       await delete('/consumption/$recordId');
     } catch (e) {
       throw Exception('消費記録の削除に失敗しました: $e');
+    }
+  }
+
+  // ===== RECOMMENDATIONS API =====
+  Future<List<ConsumptionRecommendation>> getRecommendations({
+    int skip = 0,
+    int limit = 100,
+    bool activeOnly = true,
+    String? urgencyLevel,
+  }) async {
+    try {
+      final queryParams = {
+        'skip': skip,
+        'limit': limit,
+        'active_only': activeOnly,
+        if (urgencyLevel != null) 'urgency_level': urgencyLevel,
+      };
+      
+      final response = await get('/recommendations', queryParameters: queryParams);
+      final List<dynamic> data = response.data;
+      return data.map((json) => ConsumptionRecommendation.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('推奨の取得に失敗しました: $e');
+    }
+  }
+
+  Future<ConsumptionRecommendation> generateItemRecommendation(
+    int itemId, {
+    int? targetStockLevel,
+  }) async {
+    try {
+      final data = {
+        'item_id': itemId,
+        if (targetStockLevel != null) 'target_stock_level': targetStockLevel,
+      };
+      
+      final response = await post('/recommendations/generate/$itemId', data: data);
+      return ConsumptionRecommendation.fromJson(response.data);
+    } catch (e) {
+      throw Exception('推奨の生成に失敗しました: $e');
+    }
+  }
+
+  Future<List<ConsumptionRecommendation>> generateAllRecommendations() async {
+    try {
+      final response = await post('/recommendations/generate-all');
+      final List<dynamic> data = response.data['recommendations'];
+      return data.map((json) => ConsumptionRecommendation.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('一括推奨の生成に失敗しました: $e');
+    }
+  }
+
+  Future<RecommendationSummary> getRecommendationSummary() async {
+    try {
+      final response = await get('/recommendations/summary');
+      return RecommendationSummary.fromJson(response.data);
+    } catch (e) {
+      throw Exception('推奨要約の取得に失敗しました: $e');
+    }
+  }
+
+  Future<void> acknowledgeRecommendation(int recommendationId) async {
+    try {
+      await put('/recommendations/$recommendationId/acknowledge');
+    } catch (e) {
+      throw Exception('推奨の確認に失敗しました: $e');
+    }
+  }
+
+  Future<void> deactivateRecommendation(int recommendationId) async {
+    try {
+      await delete('/recommendations/$recommendationId');
+    } catch (e) {
+      throw Exception('推奨の非アクティブ化に失敗しました: $e');
     }
   }
 } 

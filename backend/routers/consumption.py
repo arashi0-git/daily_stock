@@ -5,7 +5,7 @@ from datetime import date
 
 from database import get_db
 from models import ConsumptionRecord, DailyItem, User
-from schemas import ConsumptionRecord as ConsumptionRecordSchema, ConsumptionRecordCreate
+from schemas import ConsumptionRecord as ConsumptionRecordSchema, ConsumptionRecordCreate, ConsumptionRecordUpdate
 from routers.auth import get_current_user
 
 router = APIRouter()
@@ -26,7 +26,14 @@ async def get_consumption_records(
     if item_id:
         query = query.filter(ConsumptionRecord.item_id == item_id)
     
-    records = query.offset(skip).limit(limit).all()
+    records = query.order_by(ConsumptionRecord.consumption_date.desc()).offset(skip).limit(limit).all()
+    
+    # 関連するアイテム情報も含める
+    for record in records:
+        if record.item:
+            # アイテム情報を明示的にロード
+            db.refresh(record.item)
+    
     return records
 
 @router.post("/", response_model=ConsumptionRecordSchema, status_code=status.HTTP_201_CREATED)
@@ -87,6 +94,46 @@ async def get_consumption_record(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="消費記録が見つかりません"
         )
+    return record
+
+@router.put("/{record_id}", response_model=ConsumptionRecordSchema)
+async def update_consumption_record(
+    record_id: int,
+    record_update: ConsumptionRecordUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """消費記録を更新"""
+    record = db.query(ConsumptionRecord).filter(
+        ConsumptionRecord.id == record_id,
+        ConsumptionRecord.user_id == current_user.id
+    ).first()
+    
+    if record is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="消費記録が見つかりません"
+        )
+    
+    # 消費量が変更される場合、在庫数を調整
+    if record_update.consumed_quantity is not None and record_update.consumed_quantity != record.consumed_quantity:
+        item = db.query(DailyItem).filter(DailyItem.id == record.item_id).first()
+        if item:
+            # 元の消費量を在庫に戻し、新しい消費量を差し引く
+            quantity_diff = record.consumed_quantity - record_update.consumed_quantity
+            item.current_quantity += quantity_diff
+            item.current_quantity = max(0, item.current_quantity)
+            
+            # 残り個数も更新
+            record.remaining_quantity = item.current_quantity
+    
+    # 更新するフィールドのみを適用
+    update_data = record_update.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(record, field, value)
+    
+    db.commit()
+    db.refresh(record)
     return record
 
 @router.delete("/{record_id}")

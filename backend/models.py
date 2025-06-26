@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, Date, Boolean, ForeignKey, Float
+from sqlalchemy import Column, Integer, String, Text, DateTime, Date, Boolean, ForeignKey, Float, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -109,4 +109,28 @@ class Notification(Base):
     
     # リレーション
     user = relationship("User", back_populates="notifications")
-    item = relationship("DailyItem", back_populates="notifications") 
+    item = relationship("DailyItem", back_populates="notifications")
+
+class ConsumptionRecommendation(Base):
+    """消費推奨モデル"""
+    __tablename__ = "consumption_recommendations"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    item_id = Column(Integer, ForeignKey("daily_items.id"), nullable=False)
+    recommendation_type = Column(String(50), nullable=False)  # monitor, prepare, purchase_soon, purchase_now, urgent_purchase
+    urgency_level = Column(String(20), nullable=False)  # low, medium, high, critical
+    user_consumption_pace = Column(Float, nullable=False)
+    market_consumption_pace = Column(Float)
+    estimated_days_remaining = Column(Integer, nullable=False)
+    recommendation_message = Column(Text, nullable=False)
+    confidence_score = Column(Float, nullable=False)
+    additional_info = Column(JSON)  # 追加情報をJSONで保存
+    is_active = Column(Boolean, default=True)
+    acknowledged_at = Column(DateTime(timezone=True))  # ユーザーが確認した日時
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    
+    # リレーション
+    user = relationship("User")
+    item = relationship("DailyItem") 

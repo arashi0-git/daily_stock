@@ -90,6 +90,12 @@ class ConsumptionRecordBase(BaseModel):
 class ConsumptionRecordCreate(ConsumptionRecordBase):
     item_id: int
 
+class ConsumptionRecordUpdate(BaseModel):
+    consumed_quantity: Optional[int] = None
+    consumption_date: Optional[date] = None
+    remaining_quantity: Optional[int] = None
+    notes: Optional[str] = None
+
 class ConsumptionRecord(ConsumptionRecordBase):
     id: int
     user_id: int
@@ -149,4 +155,50 @@ class DashboardSummary(BaseModel):
     total_items: int
     low_stock_items: int
     recent_consumptions: List[ConsumptionRecord]
-    upcoming_notifications: List[Notification] 
+    upcoming_notifications: List[Notification]
+
+# 消費推奨関連スキーマ
+class ConsumptionRecommendationBase(BaseModel):
+    recommendation_type: str
+    urgency_level: str
+    user_consumption_pace: float
+    market_consumption_pace: Optional[float] = None
+    estimated_days_remaining: int
+    recommendation_message: str
+    confidence_score: float
+    additional_info: Optional[dict] = None
+
+class ConsumptionRecommendationCreate(ConsumptionRecommendationBase):
+    item_id: int
+
+class ConsumptionRecommendation(ConsumptionRecommendationBase):
+    id: int
+    user_id: int
+    item_id: int
+    is_active: bool
+    acknowledged_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+    item: Optional[DailyItem] = None
+    
+    class Config:
+        from_attributes = True
+
+# AI サービス関連スキーマ
+class ConsumptionAnalysisRequest(BaseModel):
+    item_id: int
+    target_stock_level: Optional[int] = None
+
+class ConsumptionAnalysisResponse(BaseModel):
+    analysis: dict
+    market_data: dict
+    item_info: dict
+
+class RecommendationRequest(BaseModel):
+    item_id: int
+    target_stock_level: Optional[int] = None
+
+class BatchRecommendationResponse(BaseModel):
+    recommendations: List[ConsumptionRecommendation]
+    total_count: int
+    high_priority_count: int 

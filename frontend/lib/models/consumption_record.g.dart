@@ -55,3 +55,23 @@ Map<String, dynamic> _$ConsumptionRecordCreateToJson(
       'remaining_quantity': instance.remainingQuantity,
       'notes': instance.notes,
     };
+
+ConsumptionRecordUpdate _$ConsumptionRecordUpdateFromJson(
+        Map<String, dynamic> json) =>
+    ConsumptionRecordUpdate(
+      consumedQuantity: (json['consumed_quantity'] as num?)?.toInt(),
+      consumptionDate: json['consumption_date'] == null
+          ? null
+          : DateTime.parse(json['consumption_date'] as String),
+      remainingQuantity: (json['remaining_quantity'] as num?)?.toInt(),
+      notes: json['notes'] as String?,
+    );
+
+Map<String, dynamic> _$ConsumptionRecordUpdateToJson(
+        ConsumptionRecordUpdate instance) =>
+    <String, dynamic>{
+      'consumed_quantity': instance.consumedQuantity,
+      'consumption_date': instance.consumptionDate?.toIso8601String(),
+      'remaining_quantity': instance.remainingQuantity,
+      'notes': instance.notes,
+    };

@@ -38,10 +38,10 @@ class ItemsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateItem(DailyItem item) async {
+  Future<void> updateItem(int itemId, DailyItemUpdate itemUpdate) async {
     try {
-      final updatedItem = await _apiService.updateItem(item);
-      final index = _items.indexWhere((i) => i.id == item.id);
+      final updatedItem = await _apiService.updateItem(itemId, itemUpdate);
+      final index = _items.indexWhere((i) => i.id == itemId);
       if (index != -1) {
         _items[index] = updatedItem;
         notifyListeners();

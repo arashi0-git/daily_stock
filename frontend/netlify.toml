@@ -1,16 +1,22 @@
 [build]
+  command = "flutter build web --release --dart-define=API_BASE_URL=$API_BASE_URL"
   publish = "build/web"
-  command = "flutter build web --release --web-renderer html"
   
 [build.environment]
   FLUTTER_ENV = "production"
+  # Flutter用の環境変数
+  API_BASE_URL = "https://daily-stock-backend.onrender.com"
 
 # 自動デプロイ設定
 [context.production]
   command = "flutter build web --release --web-renderer html"
+  [context.production.environment]
+    API_BASE_URL = "https://daily-stock-backend.onrender.com"
   
 [context.deploy-preview]
   command = "flutter build web --web-renderer html"
+  [context.deploy-preview.environment]
+    API_BASE_URL = "https://daily-stock-backend.onrender.com"
 
 # ビルド時の設定
 [build.processing]

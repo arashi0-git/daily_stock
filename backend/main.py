@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 import uvicorn
 
 from database import get_db
-from routers import auth, items, consumption, recommendations
+from routers import auth, items, consumption, recommendations, ai
 from models import Base
 from database import engine
 
@@ -51,6 +51,7 @@ app.include_router(auth.router, prefix="/api/v1/auth", tags=["認証"])
 app.include_router(items.router, prefix="/api/v1/items", tags=["日用品"])
 app.include_router(consumption.router, prefix="/api/v1/consumption", tags=["消費記録"])
 app.include_router(recommendations.router, prefix="/api/v1/recommendations", tags=["消費推奨"])
+app.include_router(ai.router, prefix="/api/v1/ai", tags=["AI分析"])
 
 @app.get("/")
 async def root():

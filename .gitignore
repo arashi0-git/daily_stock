@@ -65,7 +65,7 @@ postgres_data/
 node_modules/
 
 # Flutter build files
-**/build/
+# **/build/
 **/android/app/debug
 **/android/app/profile
 **/android/app/release

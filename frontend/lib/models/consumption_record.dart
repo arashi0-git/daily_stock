@@ -59,4 +59,25 @@ class ConsumptionRecordCreate {
 
   factory ConsumptionRecordCreate.fromJson(Map<String, dynamic> json) => _$ConsumptionRecordCreateFromJson(json);
   Map<String, dynamic> toJson() => _$ConsumptionRecordCreateToJson(this);
+}
+
+@JsonSerializable()
+class ConsumptionRecordUpdate {
+  @JsonKey(name: 'consumed_quantity')
+  final int? consumedQuantity;
+  @JsonKey(name: 'consumption_date')
+  final DateTime? consumptionDate;
+  @JsonKey(name: 'remaining_quantity')
+  final int? remainingQuantity;
+  final String? notes;
+
+  ConsumptionRecordUpdate({
+    this.consumedQuantity,
+    this.consumptionDate,
+    this.remainingQuantity,
+    this.notes,
+  });
+
+  factory ConsumptionRecordUpdate.fromJson(Map<String, dynamic> json) => _$ConsumptionRecordUpdateFromJson(json);
+  Map<String, dynamic> toJson() => _$ConsumptionRecordUpdateToJson(this);
 } 

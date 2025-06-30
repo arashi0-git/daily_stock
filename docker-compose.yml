@@ -32,6 +32,34 @@ services:
       timeout: 5s
       retries: 5
 
+  ai_service:
+    build:
+      context: ./ai_service
+      dockerfile: Dockerfile
+    container_name: daily_stock_ai_service
+    environment:
+      DATABASE_URL: postgresql://daily_stock_user:daily_stock_password@postgres:5432/daily_stock
+      REDIS_URL: redis://redis:6379/0
+      ENVIRONMENT: development
+      DEBUG: true
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./ai_service:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - daily_stock_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   backend:
     build:
       context: ./backend
@@ -40,6 +68,7 @@ services:
     environment:
       DATABASE_URL: postgresql://daily_stock_user:daily_stock_password@postgres:5432/daily_stock
       REDIS_URL: redis://redis:6379/0
+      AI_SERVICE_URL: http://ai_service:8001
       SECRET_KEY: your-secret-key-change-this-in-production
       ALGORITHM: HS256
       ACCESS_TOKEN_EXPIRE_MINUTES: 1440
@@ -54,13 +83,27 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      ai_service:
+        condition: service_healthy
+    networks:
+      - daily_stock_network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: daily_stock_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
     networks:
       - daily_stock_network
     restart: unless-stopped
 
 volumes:
   postgres_data:
-
 
 networks:
   daily_stock_network:

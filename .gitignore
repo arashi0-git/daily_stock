@@ -29,6 +29,9 @@ env/
 ENV/
 env.bak/
 venv.bak/
+.env
+.env.local
+.env.production
 
 # IDEs
 .vscode/
@@ -36,7 +39,7 @@ venv.bak/
 *.swp
 *.swo
 
-# OS
+# OS files
 .DS_Store
 .DS_Store?
 ._*
@@ -49,11 +52,6 @@ Thumbs.db
 *.log
 logs/
 
-# Environment variables
-.env
-.env.local
-.env.production
-
 # Database
 *.db
 *.sqlite
@@ -61,15 +59,20 @@ logs/
 
 # Docker
 .dockerignore
+postgres_data/
 
 # Node modules (if any)
 node_modules/
 
-# Flutter specific (additional to frontend/.gitignore)
+# Flutter build files
 **/build/
 **/android/app/debug
 **/android/app/profile
 **/android/app/release
 
 # AI Service
-ai_service/__pycache__/ 
+ai_service/__pycache__/
+
+# Temporary files
+*.tmp
+*.temp

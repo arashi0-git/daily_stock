@@ -1,85 +1,35 @@
-name: Deploy to Production
+name: Deploy Flutter Web to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
-# 同時実行を制限
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    branches:
+      - main
 
 jobs:
-  test-backend:
+  build:
     runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-    
-    - name: Install backend dependencies
-      run: |
-        cd backend
-        pip install -r requirements.txt
-    
-    - name: Test backend
-      run: |
-        cd backend
-        python -m pytest tests/ || echo "No tests found"
 
-  test-frontend:
-    runs-on: ubuntu-latest
-    
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.16.0'
-    
-    - name: Install frontend dependencies
-      run: |
-        cd frontend
-        flutter pub get
-    
-    - name: Test frontend
-      run: |
-        cd frontend
-        flutter test || echo "No tests found"
-    
-    - name: Build web
-      run: |
-        cd frontend
-        flutter build web --release
+      - name: Checkout
+        uses: actions/checkout@v3
 
-  deploy:
-    needs: [test-backend, test-frontend]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Notify deployment start
-      run: |
-        echo "🚀 Starting deployment to production..."
-        echo "Backend: Railway will auto-deploy"
-        echo "Frontend: Netlify will auto-deploy"
-    
-    - name: Wait for services to deploy
-      run: |
-        echo "⏳ Waiting for auto-deployment..."
-        sleep 30
-    
-    - name: Verify deployment
-      run: |
-        echo "✅ Deployment process initiated"
-        echo "Check Railway dashboard: https://railway.app"
-        echo "Check Netlify dashboard: https://app.netlify.com" 
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'  # 任意のFlutterバージョン
+
+      - name: Enable Web
+        run: flutter config --enable-web
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Web
+        run: flutter build web
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build/web
+          publish_branch: gh-pages

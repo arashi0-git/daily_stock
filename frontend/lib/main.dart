@@ -13,7 +13,7 @@ import 'screens/home_screen.dart';
 import 'screens/items_screen.dart';
 import 'screens/item_detail_screen.dart';
 import 'screens/consumption_screen.dart';
-import 'services/auth_service.dart';
+import 'screens/analytics_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -71,8 +71,8 @@ class MyApp extends StatelessWidget {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: const Color(0xFF6750A4),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF6750A4),
                     width: 2,
                   ),
                 ),
@@ -152,6 +152,10 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/consumption',
       builder: (context, state) => const ConsumptionScreen(),
+    ),
+    GoRoute(
+      path: '/analytics',
+      builder: (context, state) => const AnalyticsScreen(),
     ),
   ],
   redirect: (context, state) {

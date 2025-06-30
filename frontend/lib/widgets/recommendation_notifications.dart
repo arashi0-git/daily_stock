@@ -26,7 +26,7 @@ class RecommendationNotifications extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.error_outline,
                     color: Colors.red,
                     size: 48,
@@ -80,8 +80,8 @@ class RecommendationNotifications extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            recommendation.urgencyColor.withOpacity(0.1),
-            recommendation.urgencyColor.withOpacity(0.05),
+            recommendation.urgencyColor.withValues(alpha: 0.1),
+            recommendation.urgencyColor.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -93,7 +93,7 @@ class RecommendationNotifications extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: recommendation.urgencyColor.withOpacity(0.3),
+            color: recommendation.urgencyColor.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -144,7 +144,7 @@ class RecommendationNotifications extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: recommendation.urgencyColor.withOpacity(0.2),
+                    color: recommendation.urgencyColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -167,7 +167,7 @@ class RecommendationNotifications extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: recommendation.urgencyColor.withOpacity(0.3)),
+                border: Border.all(color: recommendation.urgencyColor.withValues(alpha: 0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,7 +247,7 @@ class RecommendationNotifications extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.warning,
                     color: Colors.orange,
                   ),
@@ -274,9 +274,9 @@ class RecommendationNotifications extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: recommendation.urgencyColor.withOpacity(0.1),
+        color: recommendation.urgencyColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: recommendation.urgencyColor.withOpacity(0.3)),
+        border: Border.all(color: recommendation.urgencyColor.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -320,9 +320,9 @@ class RecommendationNotifications extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -336,7 +336,7 @@ class RecommendationNotifications extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: 10,
-                  color: color.withOpacity(0.8),
+                  color: color.withValues(alpha: 0.8),
                 ),
               ),
               Text(

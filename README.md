@@ -40,7 +40,8 @@ daily_stock/
 ### 🐳 Docker環境（推奨）
 1. リポジトリをクローン
 2. 全サービスを起動: `docker-compose up -d`
-3. Flutterアプリを起動: `cd frontend && flutter run`
+3. フロントエンド確認: http://localhost:3000
+3. バックエンドAPI: http://localhost:8000/docs
 
 ### 🔧 ローカル開発環境
 1. データベースを起動: `docker-compose up -d postgres redis`

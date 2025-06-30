@@ -1,0 +1,35 @@
+[build]
+  publish = "build/web"
+  command = "flutter build web --release --web-renderer html"
+  
+[build.environment]
+  FLUTTER_ENV = "production"
+
+# 自動デプロイ設定
+[context.production]
+  command = "flutter build web --release --web-renderer html"
+  
+[context.deploy-preview]
+  command = "flutter build web --web-renderer html"
+
+# ビルド時の設定
+[build.processing]
+  skip_processing = false
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable" 

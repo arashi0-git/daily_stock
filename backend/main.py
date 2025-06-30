@@ -20,12 +20,20 @@ app = FastAPI(
 )
 
 # CORS設定
+import os
+
 origins = [
     "http://localhost:3000",
     "http://localhost:8080",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:8080",
 ]
+
+# 本番環境用のCORS設定
+frontend_url = os.getenv("FRONTEND_URL")
+if frontend_url:
+    origins.append(frontend_url)
+    origins.append(frontend_url.replace("http://", "https://"))  # HTTPS版も追加
 
 app.add_middleware(
     CORSMiddleware,

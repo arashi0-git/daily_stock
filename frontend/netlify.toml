@@ -1,5 +1,4 @@
 [build]
-  command = "flutter build web --release --dart-define=API_BASE_URL=$API_BASE_URL"
   publish = "build/web"
   
 [build.environment]

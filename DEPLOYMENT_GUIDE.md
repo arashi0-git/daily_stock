@@ -86,7 +86,7 @@ CREATE TABLE consumption_records (
 「Environment Variables」セクションで以下を追加:
 
 ```
-DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres
+DATABASE_URL=postgresql://postgres:Y.arashi0408@db.ixnkwlzlmrkfyrswccpl.supabase.co:5432/postgres
 SECRET_KEY=[自動生成されたキー]
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=1440

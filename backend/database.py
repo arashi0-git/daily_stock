@@ -6,7 +6,7 @@ import os
 # データベースURL設定
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://daily_stock_user:daily_stock_password@localhost:5432/daily_stock"
+    "postgresql://postgres:Y.arashi0408@db.ixnkwlzlmrkfyrswccpl.supabase.co:5432/postgres"
 )
 
 # SQLAlchemyエンジン作成

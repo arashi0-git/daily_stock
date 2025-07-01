@@ -20,9 +20,11 @@ jobs:
       - name: Enable Web
         run: flutter config --enable-web
       - name: Install dependencies
-        run: cd frontend && flutter pub get
+        run: flutter pub get
+        working-directory: frontend
       - name: Build Web
-        run: cd frontend && flutter build web --release
+        run: flutter build web --release
+        working-directory: frontend
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}

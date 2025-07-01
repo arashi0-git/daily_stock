@@ -1,14 +1,12 @@
 services:
-  # バックエンドAPI（FastAPI + AI統合）
   - type: web
     name: daily-stock-backend
     env: python
-    buildCommand: pip install -r backend/requirements.txt
-    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install -r ../requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    workingDir: backend
     healthCheckPath: /health
     envVars:
-      - key: PYTHONPATH
-        value: ./backend
       - key: DATABASE_URL
         sync: false
       - key: SECRET_KEY
@@ -23,9 +21,8 @@ services:
         value: "false"
       - key: FRONTEND_URL
         value: https://daily-stock.netlify.app
-    
-  # データベース（PostgreSQL）
+
 databases:
   - name: daily-stock-db
     databaseName: daily_stock
-    user: daily_stock_user 
+    user: daily_stock_user

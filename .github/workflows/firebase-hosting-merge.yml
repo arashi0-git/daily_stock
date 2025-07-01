@@ -11,45 +11,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Debug - Show directory structure
-        run: |
-          echo "=== Current directory ==="
-          pwd
-          echo "=== Root directory contents ==="
-          ls -la
-          echo "=== Frontend directory contents ==="
-          ls -la frontend/ || echo "frontend directory not found"
-          echo "=== Check pubspec.yaml ==="
-          cat frontend/pubspec.yaml || echo "pubspec.yaml not found"
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.29.3'
       - name: Enable Web
         run: flutter config --enable-web
-      - name: Debug - Flutter environment
-        run: |
-          echo "=== Flutter version ==="
-          flutter --version
-          echo "=== Flutter doctor ==="
-          flutter doctor -v
-      - name: Debug - Check Flutter in frontend directory
-        run: |
-          echo "=== Current directory before flutter pub get ==="
-          pwd
-          echo "=== Contents ==="
-          ls -la
+      - name: Install dependencies
+        run: flutter pub get
         working-directory: frontend
-      - name: Install dependencies (Alternative method)
-        run: |
-          cd frontend
-          pwd
-          ls -la
-          flutter pub get
-      - name: Build Web (Alternative method)
-        run: |
-          cd frontend
-          flutter build web --release
+      - name: Build Web
+        run: flutter build web --release
+        working-directory: frontend
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}

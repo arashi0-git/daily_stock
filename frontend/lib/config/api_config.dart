@@ -9,17 +9,16 @@ class ApiConfig {
 
   // 現在の環境に応じてベースURLを返す
   static String get baseUrl {
-    // Webプラットフォーム（Firebase Hosting）では本番環境を使用
+    // Webプラットフォームでは常に本番環境を使用（Firebase Hosting用）
     if (kIsWeb) {
-      // ローカル開発の場合のみlocalhost
-      if (Uri.base.host == 'localhost' || Uri.base.host == '127.0.0.1') {
-        return _devBaseUrl;
+      if (kDebugMode) {
+        print('Current host: ${Uri.base.host}');
+        print('Using production URL: $_prodBaseUrl');
       }
-      // その他のWeb環境（Firebase Hosting等）では本番環境
       return _prodBaseUrl;
     }
 
-    // モバイルアプリの場合はローカル開発環境（開発時）
+    // モバイルアプリの場合はローカル開発環境
     return _devBaseUrl;
   }
 

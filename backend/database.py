@@ -6,7 +6,7 @@ import os
 # データベースURL設定
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://postgres.ixnkwlzlmrkfyrswccpl:Y.arashi0408@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres"
+    "postgresql://postgres:Y.arashi0408@db.ixnkwlzlmrkfyrswccpl.supabase.co:5432/postgres"
 )
 
 # SQLAlchemyエンジン作成

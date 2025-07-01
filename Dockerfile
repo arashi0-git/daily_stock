@@ -19,22 +19,21 @@ RUN pip install --no-cache-dir -r requirements.txt
 # バックエンドのソースコードをコピー
 COPY backend/ ./
 
-# 起動スクリプトをコピー
-COPY start.sh ./
-RUN chmod +x start.sh
-
 # 環境変数を設定
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 
-# ポート8000を公開（Railwayの$PORTを使用）
-EXPOSE 8000
+# Cloud Runのポート環境変数を使用（デフォルト8080）
+ENV PORT=8080
+EXPOSE $PORT
 
+# 非rootユーザーでの実行（セキュリティベストプラクティス）
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
 
-
-# ヘルスチェック
+# ヘルスチェック用エンドポイントの確認
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/health', timeout=10)" || exit 1
+    CMD python -c "import requests; requests.get(f'http://localhost:{os.environ.get(\"PORT\", 8080)}/health', timeout=10)" || exit 1
 
-# Railway用の起動コマンド
-CMD ["./start.sh"] 
+# Cloud Run用の起動コマンド
+CMD exec uvicorn main:app --host 0.0.0.0 --port ${PORT} --workers 1 

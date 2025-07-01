@@ -4,7 +4,7 @@ from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 import uvicorn
 
-from database import get_db
+from backend.database import get_db
 from routers import auth, items, consumption, recommendations, ai
 from models import Base
 from database import engine

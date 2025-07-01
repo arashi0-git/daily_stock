@@ -27,6 +27,8 @@ origins = [
     "http://localhost:8080",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:8080",
+    "https://daily-store-app.web.app",  # Firebase Hosting URL
+    "https://daily-store-app.firebaseapp.com",  # Firebase alternative URL
 ]
 
 # 本番環境用のCORS設定
@@ -64,6 +66,7 @@ async def health_check():
     return {"status": "healthy"}
 
 if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8000))
     uvicorn.run(
         "main:app",
         host="0.0.0.0",

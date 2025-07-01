@@ -13,9 +13,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: flutter pub get && flutter build web
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.3'
+      - name: Enable Web
+        run: flutter config --enable-web
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: ./frontend
+      - name: Build Web
+        run: flutter build web --release
+        working-directory: ./frontend
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DAILY_STORE_APP }}
           projectId: daily-store-app
+          entryPoint: frontend

@@ -16,8 +16,8 @@ else
     exit 1
 fi
 
-# Frontend check (Netlify)
-FRONTEND_URL="${FRONTEND_URL:-https://your-app-name.netlify.app}"
+# Frontend check (Firebase Hosting)
+FRONTEND_URL="${FRONTEND_URL:-https://daily-store-app.web.app}"
 echo "Checking frontend: $FRONTEND_URL"
 
 if curl -f -s "$FRONTEND_URL" > /dev/null; then

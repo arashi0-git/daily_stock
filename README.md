@@ -31,8 +31,8 @@ daily_stock/
 ## 🚀 デプロイメント（完全無料）
 
 ### デプロイ済みアプリ
-- **フロントエンド**: Netlify でホスティング
-- **バックエンド**: Render でホスティング
+- **フロントエンド**: Firebase Hosting
+- **バックエンド**: App Engine
 - **データベース**: Supabase でホスティング
 
 ### デプロイ手順
@@ -40,8 +40,8 @@ daily_stock/
 
 ### クイックデプロイ
 1. **Supabase**: データベース設定
-2. **Render**: バックエンドデプロイ
-3. **Netlify**: フロントエンドデプロイ
+2. **App Engine**: バックエンドデプロイ
+3. **Firebase Hosting**: フロントエンドデプロイ
 
 ## 🧪 テスト環境（Docker）
 
@@ -130,4 +130,4 @@ daily_stock/
 ---
 
 **🌟 完全無料でホスティング可能！**
-Netlify + Render + Supabase の無料プランを活用 
+Firebase Hosting + App Engine + Supabase の無料プランを活用 

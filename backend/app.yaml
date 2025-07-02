@@ -6,3 +6,12 @@ instance_class: F1
 automatic_scaling:
   min_instances: 0
   max_instances: 2
+
+env_variables:
+  DATABASE_URL: "postgresql://postgres.ixnkwlzlmrkfyrswccpl:Y.arashi0408@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres"
+  SECRET_KEY: "m18bnhrN36S7nBrrOL9UbRVNh7cdU7dJqCnP5GRi1Ov8CNQkAS6Dib0fQPvZPYi6YJvJmWO4WpHRJV2_dtLKBw"
+  ALGORITHM: "HS256"
+  ACCESS_TOKEN_EXPIRE_MINUTES: "1440"
+  ENVIRONMENT: "production"
+  DEBUG: "false"
+  FRONTEND_URL: "https://daily-store-app.web.app"

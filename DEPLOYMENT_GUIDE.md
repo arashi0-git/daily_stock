@@ -4,8 +4,8 @@
 
 ## 📋 デプロイメント構成
 
-- **フロントエンド**: Netlify (無料)
-- **バックエンド**: Render (無料プラン)
+- **フロントエンド**: Firebase Hosting (無料)
+- **バックエンド**: App Engine (GCP)
 - **データベース**: Supabase (無料プラン)
 
 ## 🗄️ 1. Supabaseでデータベースを設定
@@ -124,34 +124,26 @@ FRONTEND_URL=https://[YOUR-NETLIFY-APP].netlify.app
 ### 2.4 デプロイ実行
 「Create Web Service」をクリックしてデプロイを開始
 
-## 🌐 3. Netlifyでフロントエンドをデプロイ
+## 🌐 3. Firebase Hostingでフロントエンドをデプロイ（既存設定）
 
-### 3.1 Netlifyアカウント作成
-1. [Netlify](https://netlify.com)にアクセス
-2. GitHubアカウントでサインアップ
+### 3.1 Firebase Hosting設定（設定済み）
+✅ **既存環境は設定済みです**
+- Firebase プロジェクト: `daily-store-app`
+- GitHub Actions: 自動デプロイ設定済み
+- URL: `https://daily-store-app.web.app`
 
-### 3.2 サイトをデプロイ
-1. 「New site from Git」をクリック
-2. GitHubリポジトリを選択
-3. 以下の設定を入力:
+### 3.2 自動デプロイメント（既存機能）
+- `main`ブランチへのマージで自動デプロイ
+- プルリクエストでプレビュー生成
+- Flutter Webビルドを自動実行
 
-**Build Settings:**
-- Base directory: `frontend`
-- Build command: `flutter build web --release --dart-define=API_BASE_URL=$API_BASE_URL`
-- Publish directory: `frontend/build/web`
+### 3.3 既存設定の確認
+```bash
+# フロントエンドの動作確認
+curl https://daily-store-app.web.app
 
-### 3.3 環境変数を設定
-「Site settings」→「Environment variables」で追加:
-
+# 期待される応答: HTMLページ
 ```
-API_BASE_URL=https://daily-stock-backend.onrender.com
-```
-
-### 3.4 Flutter Webの依存関係確保
-Netlifyでのビルドが失敗する場合は、以下を確認:
-
-1. `frontend`ディレクトリに`netlify.toml`があることを確認
-2. Flutter SDKが正しくインストールされるよう設定
 
 ## ✅ 4. デプロイメント確認
 
@@ -161,7 +153,7 @@ Netlifyでのビルドが失敗する場合は、以下を確認:
 3. `{"status": "healthy"}`が返されることを確認
 
 ### 4.2 フロントエンド確認
-1. Netlifyのフロントエンドにアクセス
+1. Firebase Hostingのフロントエンドにアクセス
 2. アプリが正常に表示されることを確認
 3. API通信が正常に動作することをテスト
 
@@ -169,22 +161,22 @@ Netlifyでのビルドが失敗する場合は、以下を確認:
 
 ### 自動デプロイメント
 - GitHub `main`ブランチにプッシュすると自動的にデプロイされます
-- バックエンド: Render
-- フロントエンド: Netlify
+- バックエンド: App Engine
+- フロントエンド: Firebase Hosting
 
 ## 💰 料金について
 
 ### 無料プランの制限
 
-**Render (無料プラン):**
-- 月750時間（31日間フル稼働可能）
-- スリープ機能あり（非アクティブ時）
-- 512MB RAM
+**App Engine (無料クォータ):**
+- 1日あたり28時間のインスタンス時間
+- 1日あたり1GBの送信データ
+- 自動スケーリング対応
 
-**Netlify (無料プラン):**
-- 月100GB帯域幅
-- 月300分ビルド時間
-- 無制限サイト数
+**Firebase Hosting (無料プラン):**
+- 月10GB転送量
+- 1GB ストレージ
+- 独自ドメイン対応
 
 **Supabase (無料プラン):**
 - 500MB データベース容量

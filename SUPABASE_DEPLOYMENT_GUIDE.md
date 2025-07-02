@@ -60,19 +60,16 @@ gcloud run deploy daily-stock-backend \
   --set-env-vars DEBUG="false"
 ```
 
-### **3. Netlify（フロントエンド）**
+### **3. Firebase Hosting（フロントエンド）- 既存設定**
 
-#### 3.1 基本設定
-```
-Base directory: frontend
-Build command: flutter build web --release --dart-define=API_BASE_URL=$API_BASE_URL
-Publish directory: frontend/build/web
-```
+#### 3.1 Firebase Hosting設定（設定済み）
+✅ **既存環境で使用中**
+- Firebase プロジェクト: `daily-store-app`
+- 自動デプロイ: GitHub Actions設定済み
+- URL: `https://daily-store-app.web.app`
 
-#### 3.2 環境変数設定
-```bash
-API_BASE_URL=https://daily-stock-backend.onrender.com
-```
+#### 3.2 バックエンドURL設定
+フロントエンドは自動的にApp EngineのURLに接続されます
 
 ## ✅ デプロイメント確認
 
@@ -90,7 +87,7 @@ curl https://your-backend-url.onrender.com/health
 - エラーがある場合は「🔄 接続を再試行します...」の後の状態を確認
 
 ### **3. フロントエンド確認**
-- Netlifyアプリが正常に表示されることを確認
+- Firebase Hostingアプリが正常に表示されることを確認
 - API通信が正常に動作することをテスト
 
 ## 🔧 自動化された機能
@@ -115,8 +112,8 @@ curl https://your-backend-url.onrender.com/health
 | サービス | プラン | 制限 |
 |---------|-------|-----|
 | **Supabase** | 無料 | 500MB DB, 月200万API呼び出し |
-| **Render** | 無料 | 月750時間, 512MB RAM |
-| **Netlify** | 無料 | 月100GB帯域幅, 月300分ビルド |
+| **App Engine** | 無料 | 1日28時間, 1GB送信データ |
+| **Firebase Hosting** | 無料 | 月10GB転送量, 1GBストレージ |
 
 ## 🛠️ トラブルシューティング
 

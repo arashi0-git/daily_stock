@@ -16,7 +16,7 @@ ENVIRONMENT=production
 DEBUG=false
 
 # フロントエンド設定
-FRONTEND_URL=https://[YOUR-NETLIFY-APP].netlify.app
+FRONTEND_URL=https://daily-store-app.web.app
 ```
 
 ## 🔧 設定手順
@@ -39,9 +39,10 @@ python -c "import secrets; print(secrets.token_urlsafe(64))"
 2. `Environment Variables` セクション
 3. 上記の環境変数を追加
 
-#### **Netlify（フロントエンド）**
-1. Site settings → Environment variables
-2. `API_BASE_URL=https://[YOUR-RENDER-APP].onrender.com` を設定
+#### **Firebase Hosting（フロントエンド）**
+✅ **設定不要** - 既存の環境で動作中
+- Firebase プロジェクト: `daily-store-app`
+- 自動デプロイ: GitHub Actions設定済み
 
 #### **Cloud Run（GCP）**
 ```bash

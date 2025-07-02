@@ -28539,7 +28539,7 @@ J.en(p,q)}return n},
 aV6(a){var s=J.aT(a.a),r=a.$ti
 if(new A.kX(s,r.i("kX<1>")).q())return r.c.a(s.gO(s))
 return null},
-aS6(){return"http://localhost:8000"},
+aS6(){return"https://daily-store-app.an.r.appspot.com"},
 t7(a){return A.b1E(a)},
 b1E(a){var s=0,r=A.L(t.H3),q,p=2,o=[],n=[],m,l,k
 var $async$t7=A.M(function(b,c){if(b===1){o.push(c)
@@ -44364,7 +44364,7 @@ A.axV.prototype={
 $0(){return A.fo(this.a).fV(0,"/login",null)},
 $S:0}
 A.a5K.prototype={
-a4X(){var s=this,r=A.aSc("http://localhost:8000/api/v1",B.ps,A.ak(["Content-Type","application/json"],t.N,t.z),B.ps),q=new A.Oa(A.a([B.JG],t.i6)),p=new A.a8H($,q,$,new A.ac1(51200),!1)
+a4X(){var s=this,r=A.aSc("https://daily-store-app.an.r.appspot.com/api/v1",B.ps,A.ak(["Content-Type","application/json"],t.N,t.z),B.ps),q=new A.Oa(A.a([B.JG],t.i6)),p=new A.a8H($,q,$,new A.ac1(51200),!1)
 p.WE$=r
 p.WF$=new A.a6v(A.aJ(t.lZ))
 s.a!==$&&A.bC()

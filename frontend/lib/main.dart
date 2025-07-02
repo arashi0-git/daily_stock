@@ -14,6 +14,7 @@ import 'screens/items_screen.dart';
 import 'screens/item_detail_screen.dart';
 import 'screens/consumption_screen.dart';
 import 'screens/analytics_screen.dart';
+import 'config/api_config.dart';
 
 void main() {
   runApp(const MyApp());

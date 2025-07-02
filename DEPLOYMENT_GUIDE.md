@@ -25,40 +25,61 @@
 postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres
 ```
 
-### 1.3 テーブル作成（SQL Editor）
-```sql
--- ユーザーテーブル
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    hashed_password VARCHAR(255) NOT NULL,
-    is_active BOOLEAN DEFAULT true,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+### 1.3 データベース初期化方法
 
--- 日用品テーブル
-CREATE TABLE items (
+**🔄 方法1: 自動マイグレーション（推奨）**
+1. バックエンドデプロイ時に自動的にテーブルが作成されます
+2. `ENVIRONMENT=production` 設定により、Alembicマイグレーションが実行されます
+3. 手動でのSQL実行は不要です
+
+**📝 方法2: 手動SQL実行（必要な場合のみ）**
+Supabase SQL Editorで以下を実行:
+
+```sql
+-- ⚠️ 注意：自動マイグレーションを使用する場合、この手動実行は不要です
+
+-- ユーザーテーブル
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id),
-    name VARCHAR(255) NOT NULL,
-    category VARCHAR(100),
-    current_quantity INTEGER DEFAULT 0,
-    minimum_threshold INTEGER DEFAULT 1,
-    unit VARCHAR(50) DEFAULT '個',
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 消費記録テーブル
-CREATE TABLE consumption_records (
+-- カテゴリテーブル
+CREATE TABLE IF NOT EXISTS categories (
     id SERIAL PRIMARY KEY,
-    item_id INTEGER REFERENCES items(id),
-    consumed_quantity INTEGER NOT NULL,
-    consumption_date DATE NOT NULL,
-    notes TEXT,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- 日用品テーブル
+CREATE TABLE IF NOT EXISTS daily_items (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    category_id INTEGER REFERENCES categories(id),
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    current_quantity INTEGER DEFAULT 0,
+    unit VARCHAR(20) DEFAULT '個',
+    minimum_threshold INTEGER DEFAULT 1,
+    estimated_consumption_days INTEGER DEFAULT 30,
+    purchase_url TEXT,
+    price DECIMAL(10, 2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 詳細なテーブル構造は database/init.sql を参照
 ```
+
+**🔧 マイグレーション管理**
+- 新しいテーブルやカラムの追加は自動的に処理されます
+- スキーマ変更履歴は `alembic/versions/` で管理されます
+- ロールバックが必要な場合は、開発チームにお問い合わせください
 
 ## 🔧 2. Renderでバックエンドをデプロイ
 
@@ -86,14 +107,19 @@ CREATE TABLE consumption_records (
 「Environment Variables」セクションで以下を追加:
 
 ```
-DATABASE_URL=postgresql://postgres:Y.arashi0408@db.ixnkwlzlmrkfyrswccpl.supabase.co:5432/postgres
-SECRET_KEY=[自動生成されたキー]
+DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres
+SECRET_KEY=[64文字以上のランダムキー]
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
 ENVIRONMENT=production
 DEBUG=false
 FRONTEND_URL=https://[YOUR-NETLIFY-APP].netlify.app
 ```
+
+**⚠️ 重要な注意点:**
+- `[YOUR-PASSWORD]` と `[YOUR-PROJECT-REF]` は実際の値に置換してください
+- `SECRET_KEY` は以下のコマンドで生成: `python -c "import secrets; print(secrets.token_urlsafe(64))"`
+- **絶対にパスワードをGitリポジトリにコミットしないでください**
 
 ### 2.4 デプロイ実行
 「Create Web Service」をクリックしてデプロイを開始

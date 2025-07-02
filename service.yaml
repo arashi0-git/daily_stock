@@ -27,15 +27,9 @@ spec:
         - name: DEBUG
           value: "false"
         - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: database-url
-              key: url
+          value: "postgresql://postgres.ixnkwlzlmrkfyrswccpl:Y.arashi0408@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres"
         - name: SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: secret-key
-              key: key
+          value: "m18bnhrN36S7nBrrOL9UbRVNh7cdU7dJqCnP5GRi1Ov8CNQkAS6Dib0fQPvZPYi6YJvJmWO4WpHRJV2_dtLKBw"
         - name: ALGORITHM
           value: "HS256"
         - name: ACCESS_TOKEN_EXPIRE_MINUTES

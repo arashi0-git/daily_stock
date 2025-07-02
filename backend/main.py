@@ -8,9 +8,48 @@ from database import get_db
 from routers import auth, items, consumption, recommendations, ai
 from models import Base
 from database import engine
+import logging
+import os
 
-# データベーステーブルを作成
-Base.metadata.create_all(bind=engine)
+# ログ設定
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# 起動時マイグレーション実行
+def run_startup_migrations():
+    """起動時にマイグレーションを実行"""
+    try:
+        logger.info("🚀 アプリケーション起動時データベース初期化を開始...")
+        
+        # 環境変数チェック
+        environment = os.getenv("ENVIRONMENT", "development")
+        
+        if environment == "production":
+            # 本番環境：SQLAlchemyでテーブル作成（Supabase対応）
+            logger.info("🗄️ 本番環境：Supabaseデータベースにテーブルを作成中...")
+            Base.metadata.create_all(bind=engine)
+            logger.info("✅ 本番環境データベース初期化が完了しました")
+        else:
+            # 開発環境：従来のSQLAlchemy方式
+            logger.info("📊 開発環境：SQLAlchemyでテーブルを作成中...")
+            Base.metadata.create_all(bind=engine)
+            logger.info("✅ 開発環境データベース初期化が完了しました")
+            
+    except Exception as e:
+        logger.error(f"❌ データベース初期化中にエラーが発生しました: {str(e)}")
+        logger.info("🔄 接続を再試行します...")
+        try:
+            # 再試行
+            Base.metadata.create_all(bind=engine)
+            logger.info("✅ 再試行でデータベース初期化が完了しました")
+        except Exception as retry_error:
+            logger.error(f"❌ 再試行も失敗しました: {str(retry_error)}")
+            if environment == "production":
+                logger.error("🚨 本番環境での初期化に失敗したため、アプリケーションを終了します")
+                exit(1)
+
+# 起動時マイグレーション実行
+run_startup_migrations()
 
 # FastAPIアプリケーション初期化
 app = FastAPI(
@@ -20,8 +59,6 @@ app = FastAPI(
 )
 
 # CORS設定
-import os
-
 origins = [
     "http://localhost:3000",
     "http://localhost:8080",

@@ -43,6 +43,32 @@ daily_stock/
 2. **Render**: バックエンドデプロイ
 3. **Netlify**: フロントエンドデプロイ
 
+## 🧪 テスト環境（Docker）
+
+### 完全ローカルテスト環境
+フロントエンドとバックエンドの両方をDockerで独立してテストできます：
+
+```bash
+# テスト環境を起動
+./scripts/test-env.sh start
+
+# アクセス先
+# フロントエンド: http://localhost:3000
+# バックエンドAPI: http://localhost:8000
+# API文書: http://localhost:8000/docs
+
+# テスト環境を停止
+./scripts/test-env.sh stop
+```
+
+**特徴:**
+- ✅ 本番環境と完全に分離されたテスト環境
+- ✅ フロントエンドとバックエンドの統合テスト
+- ✅ 独立したテスト用データベース
+- ✅ ホットリロード対応（バックエンド）
+
+詳細は [TEST_ENVIRONMENT.md](TEST_ENVIRONMENT.md) をご参照ください。
+
 ## セットアップ
 
 ### 前提条件

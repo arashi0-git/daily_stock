@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from datetime import date
 
 from database import get_db
@@ -14,7 +14,7 @@ router = APIRouter()
 async def get_consumption_records(
     skip: int = 0,
     limit: int = 100,
-    item_id: int | None = None,
+    item_id: Optional[int] = None,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):

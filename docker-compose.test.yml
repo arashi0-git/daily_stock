@@ -1,0 +1,83 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: daily_stock_test_db
+    environment:
+      POSTGRES_DB: daily_stock_test
+      POSTGRES_USER: daily_stock_user
+      POSTGRES_PASSWORD: daily_stock_password
+    ports:
+      - "5433:5432" # 本番DBと競合しないようにポート変更
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - daily_stock_test_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U daily_stock_user -d daily_stock_test" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: daily_stock_test_redis
+    ports:
+      - "6380:6379" # 本番Redisと競合しないようにポート変更
+    networks:
+      - daily_stock_test_network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: daily_stock_test_backend
+    environment:
+      DATABASE_URL: postgresql://daily_stock_user:daily_stock_password@postgres:5432/daily_stock_test
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: test-secret-key-for-development-only
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 1440
+      ENVIRONMENT: test
+      DEBUG: true
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - daily_stock_test_network
+    restart: unless-stopped
+    command: [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload" ]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+      args:
+        API_BASE_URL: http://localhost:8000
+    container_name: daily_stock_test_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - daily_stock_test_network
+    restart: unless-stopped
+
+volumes:
+  postgres_test_data:
+
+
+networks:
+  daily_stock_test_network:
+    driver: bridge

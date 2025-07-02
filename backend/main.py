@@ -25,10 +25,10 @@ def run_startup_migrations():
         environment = os.getenv("ENVIRONMENT", "development")
         
         if environment == "production":
-            # 本番環境：SQLAlchemyでテーブル作成（Supabase対応）
-            logger.info("🗄️ 本番環境：Supabaseデータベースにテーブルを作成中...")
-            Base.metadata.create_all(bind=engine)
-            logger.info("✅ 本番環境データベース初期化が完了しました")
+            # 本番環境：Supabaseでは手動作成済みテーブルを使用
+            logger.info("🗄️ 本番環境：Supabaseの手動作成済みテーブルを使用中...")
+            logger.info("ℹ️  テーブルは事前にSupabase SQL Editorで作成済みです")
+            logger.info("✅ 本番環境データベース初期化をスキップしました")
         else:
             # 開発環境：従来のSQLAlchemy方式
             logger.info("📊 開発環境：SQLAlchemyでテーブルを作成中...")

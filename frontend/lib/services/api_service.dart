@@ -112,7 +112,7 @@ class ApiService {
       case DioExceptionType.cancel:
         return Exception('リクエストがキャンセルされました');
       case DioExceptionType.connectionError:
-        return Exception('インターネット接続を確認してください');
+        return Exception('バックエンドサーバーに接続できません。サーバーが起動していることを確認してください。');
       default:
         return Exception('予期しないエラーが発生しました');
     }
@@ -162,6 +162,10 @@ class ApiService {
       final List<dynamic> data = response.data;
       return data.map((json) => ConsumptionRecord.fromJson(json)).toList();
     } catch (e) {
+      // より詳細なエラー情報を提供
+      if (e.toString().contains('バックエンドサーバーに接続できません')) {
+        throw Exception('バックエンドサーバー(${ApiConfig.baseUrl})に接続できません。\n1. バックエンドサーバーが起動しているか確認してください\n2. API設定が正しいか確認してください');
+      }
       throw Exception('消費記録の取得に失敗しました: $e');
     }
   }

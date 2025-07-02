@@ -19,8 +19,16 @@ class ConsumptionProvider with ChangeNotifier {
 
     try {
       _records = await _apiService.getConsumptionRecords();
+      _error = null; // 成功時はエラーをクリア
     } catch (e) {
       _error = e.toString();
+      // より詳細なエラーログを追加
+      print('消費記録取得エラー: $e');
+      
+      // 一般的な接続エラーの場合、より分かりやすいメッセージに変更
+      if (e.toString().contains('インターネット接続を確認してください')) {
+        _error = 'サーバーに接続できません。バックエンドサービスが起動しているか確認してください。';
+      }
     } finally {
       _isLoading = false;
       notifyListeners();

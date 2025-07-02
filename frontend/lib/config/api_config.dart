@@ -1,6 +1,20 @@
 class ApiConfig {
-  // 本番環境のAPIエンドポイント（Web用：固定）
-  static const String baseUrl = "https://daily-store-app.an.r.appspot.com";
+  // 環境に応じたAPIエンドポイント
+  static String get baseUrl {
+    // Docker環境で動作している場合のローカルURL
+    // Dockerコンテナ間通信の場合は service名:port を使用
+    const dockerUrl = "http://backend:8000";
+    
+    // 本番環境のURL
+    const productionUrl = "https://daily-store-app.an.r.appspot.com";
+    
+    // ローカル開発環境のURL
+    const localUrl = "http://localhost:8000";
+    
+    // プラットフォームや環境変数で判定
+    // 現在はローカル開発環境用のURLを使用
+    return localUrl;
+  }
 
   // APIエンドポイント
   static String get apiUrl => "$baseUrl/api/v1";

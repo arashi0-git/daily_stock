@@ -54,7 +54,19 @@ class _ConsumptionScreenState extends State<ConsumptionScreen> {
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 8),
-                  Text(consumptionProvider.error!),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Text(
+                      consumptionProvider.error!,
+                      style: TextStyle(color: Colors.red.shade700),
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => consumptionProvider.fetchConsumptionRecords(),

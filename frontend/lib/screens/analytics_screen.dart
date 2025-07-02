@@ -55,6 +55,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // 予想枯渇日表示セクション
+              _buildDepletionPredictionSection(context),
+
+              const SizedBox(height: 24),
+
               Text(
                 '消費傾向分析',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -405,7 +410,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           context,
                           '残り予想日数',
                           estimatedDaysLeft > 0
-                              ? '${estimatedDaysLeft}日'
+                              ? '$estimatedDaysLeft日'
                               : '計算不可',
                           Icons.schedule,
                           estimatedDaysLeft <= 7 ? Colors.red : Colors.green,
@@ -541,6 +546,252 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       'estimatedDaysLeft': estimatedDaysLeft,
       'estimatedEmptyDate': estimatedEmptyDate,
     };
+  }
+
+  // 枯渇予想日表示セクション
+  Widget _buildDepletionPredictionSection(BuildContext context) {
+    return Consumer2<ItemsProvider, ConsumptionProvider>(
+      builder: (context, itemsProvider, consumptionProvider, child) {
+        final items = itemsProvider.items;
+        final consumptionRecords = consumptionProvider.records;
+        
+        if (items.isEmpty) {
+          return Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.inventory_2,
+                    size: 48,
+                    color: Colors.grey.shade400,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    '商品が登録されていません',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '商品を登録してから統計を確認してください',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // 各商品の枯渇予想日を計算
+        final depletionPredictions = <Map<String, dynamic>>[];
+        
+        for (final item in items) {
+          final itemConsumption = consumptionRecords
+              .where((record) => record.itemId == item.id)
+              .toList();
+          final analytics = _calculateItemAnalytics(item, itemConsumption);
+          
+          depletionPredictions.add({
+            'item': item,
+            'estimatedEmptyDate': analytics['estimatedEmptyDate'],
+            'estimatedDaysLeft': analytics['estimatedDaysLeft'],
+            'averageConsumption': analytics['averageConsumption'],
+          });
+        }
+        
+        // 枯渇予想日順にソート（nullは最後）
+        depletionPredictions.sort((a, b) {
+          final dateA = a['estimatedEmptyDate'] as DateTime?;
+          final dateB = b['estimatedEmptyDate'] as DateTime?;
+          
+          if (dateA == null && dateB == null) return 0;
+          if (dateA == null) return 1;
+          if (dateB == null) return -1;
+          
+          return dateA.compareTo(dateB);
+        });
+
+        return Card(
+          elevation: 4,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.schedule,
+                        color: Colors.blue.shade600,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      '商品枯渇予想日',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  '現在の消費ペースに基づいた各商品の在庫切れ予想日です',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                
+                // 枯渇予想リスト
+                ...depletionPredictions.take(5).map((prediction) {
+                  final item = prediction['item'] as DailyItem;
+                  final estimatedEmptyDate = prediction['estimatedEmptyDate'] as DateTime?;
+                  final estimatedDaysLeft = prediction['estimatedDaysLeft'] as int;
+                  final averageConsumption = prediction['averageConsumption'] as double;
+                  
+                  final isUrgent = estimatedDaysLeft > 0 && estimatedDaysLeft <= 7;
+                  final isLowStock = item.currentQuantity <= item.minimumThreshold;
+                  
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isUrgent
+                          ? Colors.red.shade50
+                          : isLowStock
+                              ? Colors.orange.shade50
+                              : Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isUrgent
+                            ? Colors.red.shade200
+                            : isLowStock
+                                ? Colors.orange.shade200
+                                : Colors.green.shade200,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: isUrgent
+                                ? Colors.red.shade600
+                                : isLowStock
+                                    ? Colors.orange.shade600
+                                    : Colors.green.shade600,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Icon(
+                            isUrgent ? Icons.warning : Icons.inventory_2,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.name,
+                                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              if (estimatedEmptyDate != null) ...[
+                                Text(
+                                  '予想枯渇日: ${estimatedEmptyDate.year}/${estimatedEmptyDate.month}/${estimatedEmptyDate.day}',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: isUrgent
+                                        ? Colors.red.shade700
+                                        : Colors.grey.shade600,
+                                  ),
+                                ),
+                                if (averageConsumption > 0)
+                                  Text(
+                                    '平均消費: ${averageConsumption.toStringAsFixed(2)}${item.unit}/日',
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                              ] else
+                                Text(
+                                  '消費データが不足しています',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey.shade500,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            if (estimatedDaysLeft > 0)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isUrgent
+                                      ? Colors.red.shade600
+                                      : isLowStock
+                                          ? Colors.orange.shade600
+                                          : Colors.green.shade600,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '$estimatedDaysLeft日',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '現在: ${item.currentQuantity}${item.unit}',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+                
+                if (depletionPredictions.length > 5)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      '他 ${depletionPredictions.length - 5} 商品の詳細は下記の商品別分析をご確認ください',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   double _getDaysFromRecords(List<ConsumptionRecord> records) {

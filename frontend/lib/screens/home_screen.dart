@@ -26,7 +26,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // データの定期的な更新を追加
   Future<void> _refreshAllData() async {
+    if (!mounted) return;
     await context.read<ItemsProvider>().fetchItems();
+    if (!mounted) return;
     await context.read<RecommendationsProvider>().refresh();
   }
 
@@ -65,11 +67,11 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // 在庫アラートセクション（改善版）- タイトル直下に配置
+              _buildEnhancedStockAlertSection(context),
+
               // 推奨通知エリア
               const RecommendationNotifications(),
-
-              // 在庫アラートセクション（改善版）
-              _buildEnhancedStockAlertSection(context),
 
               // メニューグリッド
               Padding(
@@ -197,11 +199,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('この機能は準備中です')),
-    );
-  }
 
   void _showRecommendationsDialog(BuildContext context) {
     showDialog(

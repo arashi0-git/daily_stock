@@ -155,6 +155,20 @@ class ApiService {
     }
   }
 
+  Future<DailyItem> purchaseItem(int itemId, int purchaseQuantity) async {
+    try {
+      final response = await post(
+        '/items/$itemId/purchase', 
+        data: {
+          'purchase_quantity': purchaseQuantity,
+        }
+      );
+      return DailyItem.fromJson(response.data);
+    } catch (e) {
+      throw Exception('商品の購入に失敗しました: $e');
+    }
+  }
+
   // ===== CONSUMPTION API =====
   Future<List<ConsumptionRecord>> getConsumptionRecords() async {
     try {

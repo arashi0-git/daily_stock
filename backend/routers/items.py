@@ -123,4 +123,36 @@ async def get_low_stock_items(
 async def get_categories(db: Session = Depends(get_db)):
     """カテゴリ一覧を取得"""
     categories = db.query(Category).all()
-    return categories 
+    return categories
+
+@router.post("/{item_id}/purchase", response_model=DailyItemSchema)
+async def purchase_item(
+    item_id: int,
+    purchase_quantity: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """商品を購入して在庫を増やす"""
+    item = db.query(DailyItem).filter(
+        DailyItem.id == item_id,
+        DailyItem.user_id == current_user.id
+    ).first()
+    
+    if item is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="日用品が見つかりません"
+        )
+    
+    if purchase_quantity <= 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="購入数量は1以上である必要があります"
+        )
+    
+    # 在庫量を増やす
+    item.current_quantity += purchase_quantity
+    
+    db.commit()
+    db.refresh(item)
+    return item 

@@ -16,7 +16,7 @@ daily_stock/
 ├── backend/          # FastAPI バックエンド（AI統合済み）
 ├── frontend/         # Flutter Web フロントエンド
 ├── database/         # データベース設定
-├── render.yaml       # Render デプロイ設定
+├── backend/app.yaml  # Google App Engine デプロイ設定
 └── DEPLOYMENT_GUIDE.md  # デプロイメントガイド
 ```
 
@@ -28,20 +28,16 @@ daily_stock/
 - 市場データとの比較
 - インテリジェントな購入推奨
 
-## 🚀 デプロイメント（完全無料）
+## 🚀 デプロイメント
 
-### デプロイ済みアプリ
-- **フロントエンド**: Netlify でホスティング
-- **バックエンド**: Render でホスティング
-- **データベース**: Supabase でホスティング
+### デプロイ環境
+- **フロントエンド（Flutter Web）**: Firebase Hosting - firebase deploy
+- **バックエンド（FastAPI）**: Google App Engine - gcloud app deploy
+- **データベース**: Supabase
 
 ### デプロイ手順
 詳細なデプロイ手順については、[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) をご参照ください。
 
-### クイックデプロイ
-1. **Supabase**: データベース設定
-2. **Render**: バックエンドデプロイ
-3. **Netlify**: フロントエンドデプロイ
 
 ## 🧪 テスト環境（Docker）
 
@@ -129,5 +125,5 @@ daily_stock/
 
 ---
 
-**🌟 完全無料でホスティング可能！**
-Netlify + Render + Supabase の無料プランを活用 
+**🌟 クラウドでホスティング可能！**
+Firebase Hosting + Google App Engine + Supabase を活用 

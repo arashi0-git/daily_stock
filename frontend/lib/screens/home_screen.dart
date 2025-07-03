@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../providers/auth_provider.dart';
 import '../providers/recommendations_provider.dart';
 import '../providers/items_provider.dart';
+import '../models/daily_item.dart';
 import '../widgets/recommendation_notifications.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -72,6 +73,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // 推奨通知エリア
               const RecommendationNotifications(),
+
+              // 日用品一覧セクション
+              _buildItemsListSection(context),
 
               // メニューグリッド
               Padding(
@@ -1047,6 +1051,238 @@ A: 設定画面からデータエクスポート後に初期化できます
             child: const Text('閉じる'),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildItemsListSection(BuildContext context) {
+    return Consumer<ItemsProvider>(
+      builder: (context, itemsProvider, child) {
+        if (itemsProvider.isLoading) {
+          return const SizedBox.shrink();
+        }
+
+        if (itemsProvider.items.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        // 在庫量で商品をソート（低在庫を上部に）
+        final sortedItems = List<DailyItem>.from(itemsProvider.items);
+        sortedItems.sort((a, b) {
+          // 1. 低在庫商品を上部に
+          if (a.isLowStock && !b.isLowStock) return -1;
+          if (!a.isLowStock && b.isLowStock) return 1;
+          
+          // 2. 同じ低在庫カテゴリ内では在庫量の少ない順
+          if (a.isLowStock && b.isLowStock) {
+            return a.currentQuantity.compareTo(b.currentQuantity);
+          }
+          
+          // 3. 通常在庫商品は在庫量の少ない順
+          return a.currentQuantity.compareTo(b.currentQuantity);
+        });
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '登録商品一覧',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  TextButton(
+                    onPressed: () => context.go('/items'),
+                    child: const Text('すべて見る'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              
+              // 低在庫商品セクション
+              if (sortedItems.any((item) => item.isLowStock)) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.red.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.warning, color: Colors.red.shade600, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            '在庫不足商品',
+                            style: TextStyle(
+                              color: Colors.red.shade600,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      ...sortedItems
+                          .where((item) => item.isLowStock)
+                          .take(3)
+                          .map((item) => _buildItemCard(context, item, isUrgent: true)),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+              
+              // 通常商品セクション
+              Text(
+                '通常在庫商品',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 12),
+              ...sortedItems
+                  .where((item) => !item.isLowStock)
+                  .take(5)
+                  .map((item) => _buildItemCard(context, item)),
+              
+              if (sortedItems.length > 8) ...[
+                const SizedBox(height: 12),
+                Center(
+                  child: TextButton(
+                    onPressed: () => context.go('/items'),
+                    child: Text('他 ${sortedItems.length - 8} 件の商品を見る'),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildItemCard(BuildContext context, DailyItem item, {bool isUrgent = false}) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      elevation: isUrgent ? 4 : 1,
+      child: InkWell(
+        onTap: () => context.go('/items/${item.id}'),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              // 商品アイコン
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: isUrgent 
+                      ? Colors.red.shade100 
+                      : Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.inventory_2,
+                  color: isUrgent 
+                      ? Colors.red.shade600 
+                      : Theme.of(context).primaryColor,
+                ),
+              ),
+              const SizedBox(width: 12),
+              
+              // 商品情報
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.name,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Text(
+                          '在庫: ',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        Text(
+                          '${item.currentQuantity}${item.unit}',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: isUrgent ? Colors.red.shade600 : null,
+                                fontWeight: isUrgent ? FontWeight.bold : null,
+                              ),
+                        ),
+                        Text(
+                          ' / ${item.minimumThreshold}${item.unit}',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Colors.grey.shade600,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              
+              // ステータスインジケータ
+              Column(
+                children: [
+                  if (isUrgent) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade600,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        '要注文',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ] else ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '十分',
+                        style: TextStyle(
+                          color: Colors.green.shade600,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 4),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 16,
+                    color: Colors.grey.shade400,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

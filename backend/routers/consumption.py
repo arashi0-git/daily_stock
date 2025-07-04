@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import date
+import logging
 
 from database import get_db
 from models import ConsumptionRecord, DailyItem, User
@@ -43,6 +44,14 @@ async def create_consumption_record(
     db: Session = Depends(get_db)
 ):
     """消費記録を作成"""
+    # デバッグ用ログを追加
+    logger = logging.getLogger(__name__)
+    logger.info(f"🔍 消費記録作成リクエスト受信:")
+    logger.info(f"  - item_id: {record.item_id}")
+    logger.info(f"  - consumed_quantity: {record.consumed_quantity}")
+    logger.info(f"  - consumption_date: {record.consumption_date}")
+    logger.info(f"  - notes: {record.notes}")
+    
     # 日用品が存在し、ユーザーが所有しているかチェック
     item = db.query(DailyItem).filter(
         DailyItem.id == record.item_id,
@@ -75,6 +84,7 @@ async def create_consumption_record(
     db.commit()
     db.refresh(db_record)
     
+    logger.info(f"✅ 消費記録作成成功: ID={db_record.id}")
     return db_record
 
 @router.get("/{record_id}", response_model=ConsumptionRecordSchema)

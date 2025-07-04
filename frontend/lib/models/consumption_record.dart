@@ -33,7 +33,8 @@ class ConsumptionRecord {
     this.item,
   });
 
-  factory ConsumptionRecord.fromJson(Map<String, dynamic> json) => _$ConsumptionRecordFromJson(json);
+  factory ConsumptionRecord.fromJson(Map<String, dynamic> json) =>
+      _$ConsumptionRecordFromJson(json);
   Map<String, dynamic> toJson() => _$ConsumptionRecordToJson(this);
 }
 
@@ -43,7 +44,11 @@ class ConsumptionRecordCreate {
   final int itemId;
   @JsonKey(name: 'consumed_quantity')
   final int consumedQuantity;
-  @JsonKey(name: 'consumption_date')
+  @JsonKey(
+    name: 'consumption_date',
+    toJson: _dateToString,
+    fromJson: _stringToDate,
+  )
   final DateTime? consumptionDate;
   @JsonKey(name: 'remaining_quantity')
   final int? remainingQuantity;
@@ -57,7 +62,18 @@ class ConsumptionRecordCreate {
     this.notes,
   });
 
-  factory ConsumptionRecordCreate.fromJson(Map<String, dynamic> json) => _$ConsumptionRecordCreateFromJson(json);
+  static String? _dateToString(DateTime? date) {
+    if (date == null) return null;
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  static DateTime? _stringToDate(String? dateString) {
+    if (dateString == null) return null;
+    return DateTime.parse(dateString);
+  }
+
+  factory ConsumptionRecordCreate.fromJson(Map<String, dynamic> json) =>
+      _$ConsumptionRecordCreateFromJson(json);
   Map<String, dynamic> toJson() => _$ConsumptionRecordCreateToJson(this);
 }
 
@@ -78,6 +94,7 @@ class ConsumptionRecordUpdate {
     this.notes,
   });
 
-  factory ConsumptionRecordUpdate.fromJson(Map<String, dynamic> json) => _$ConsumptionRecordUpdateFromJson(json);
+  factory ConsumptionRecordUpdate.fromJson(Map<String, dynamic> json) =>
+      _$ConsumptionRecordUpdateFromJson(json);
   Map<String, dynamic> toJson() => _$ConsumptionRecordUpdateToJson(this);
-} 
+}

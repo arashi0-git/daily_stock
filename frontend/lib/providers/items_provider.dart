@@ -63,9 +63,19 @@ class ItemsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> purchaseItem(int itemId, int purchaseQuantity) async {
+  Future<void> purchaseItem(
+    int itemId,
+    int purchaseQuantity, {
+    double? cost,
+    String? supplier,
+  }) async {
     try {
-      final updatedItem = await _apiService.purchaseItem(itemId, purchaseQuantity);
+      final updatedItem = await _apiService.purchaseItem(
+        itemId,
+        purchaseQuantity,
+        cost: cost,
+        supplier: supplier,
+      );
       final index = _items.indexWhere((i) => i.id == itemId);
       if (index != -1) {
         _items[index] = updatedItem;
@@ -76,4 +86,4 @@ class ItemsProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-} 
+}

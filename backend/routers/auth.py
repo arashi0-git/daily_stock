@@ -53,10 +53,17 @@ async def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
     # ユーザーを検索
     user = db.query(User).filter(User.username == user_credentials.username).first()
     
-    if not user or not verify_password(user_credentials.password, user.password_hash):
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="ユーザー名またはパスワードが正しくありません",
+            detail="このユーザー名は登録されていません。新規登録を行ってください。",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    if not verify_password(user_credentials.password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="パスワードが正しくありません。",
             headers={"WWW-Authenticate": "Bearer"},
         )
     

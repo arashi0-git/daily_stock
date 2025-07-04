@@ -26,28 +26,94 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      
+
       try {
         await authProvider.login(
           _usernameController.text.trim(),
           _passwordController.text,
         );
-        
+
         if (!mounted) return;
-        
+
         // ログイン成功時はホーム画面に遷移
         context.go('/home');
       } catch (e) {
         if (!mounted) return;
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('ログインに失敗しました: ${e.toString().replaceAll('Exception: ', '')}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+
+        final errorMessage = e.toString().replaceAll('Exception: ', '');
+
+        // 新規登録を促すエラーの場合、専用ダイアログを表示
+        if (errorMessage.contains('登録されていません') ||
+            errorMessage.contains('新規登録を行ってください')) {
+          _showRegistrationPromptDialog(errorMessage);
+        } else {
+          // その他のエラーは従来通りスナックバーで表示
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('ログインに失敗しました: $errorMessage'),
+              backgroundColor: Colors.red,
+              action: SnackBarAction(
+                label: '新規登録',
+                textColor: Colors.white,
+                onPressed: () => context.go('/register'),
+              ),
+            ),
+          );
+        }
       }
     }
+  }
+
+  void _showRegistrationPromptDialog(String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          icon: const Icon(
+            Icons.info_outline,
+            color: Colors.blue,
+            size: 48,
+          ),
+          title: const Text('アカウントが見つかりません'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'このユーザー名はまだ登録されていません。\n新しいアカウントを作成しますか？',
+                style: Theme.of(context).textTheme.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                '📝 新規登録は無料で、数秒で完了します',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 12,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('キャンセル'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // 入力済みのユーザー名を引き継いで登録画面へ
+                context.go(
+                    '/register?username=${_usernameController.text.trim()}');
+              },
+              child: const Text('新規登録する'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -70,20 +136,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       // アプリタイトル
                       Text(
                         '日用品管理アプリ',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue.shade700,
-                        ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue.shade700,
+                            ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'ログインして在庫を管理しましょう',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey.shade600,
-                        ),
+                              color: Colors.grey.shade600,
+                            ),
                       ),
                       const SizedBox(height: 32),
-                      
+
                       // ユーザー名入力
                       TextFormField(
                         controller: _usernameController,
@@ -99,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // パスワード入力
                       TextFormField(
                         controller: _passwordController,
@@ -126,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       const SizedBox(height: 24),
-                      
+
                       // ログインボタン
                       Consumer<AuthProvider>(
                         builder: (context, authProvider, child) {
@@ -140,7 +209,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                       width: 20,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
                                           Colors.white,
                                         ),
                                       ),
@@ -151,7 +221,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // 新規登録リンク
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -173,4 +243,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-} 
+}

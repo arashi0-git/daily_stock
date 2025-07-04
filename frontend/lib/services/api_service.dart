@@ -100,7 +100,9 @@ class ApiService {
         return Exception('接続がタイムアウトしました');
       case DioExceptionType.badResponse:
         if (error.response?.statusCode == 401) {
-          return Exception('認証に失敗しました');
+          // バックエンドからの詳細なエラーメッセージを取得
+          final message = error.response?.data['detail'] ?? '認証に失敗しました';
+          return Exception(message);
         } else if (error.response?.statusCode == 404) {
           return Exception('リソースが見つかりません');
         } else if ((error.response?.statusCode ?? 0) >= 500) {
@@ -155,14 +157,18 @@ class ApiService {
     }
   }
 
-  Future<DailyItem> purchaseItem(int itemId, int purchaseQuantity) async {
+  Future<DailyItem> purchaseItem(
+    int itemId,
+    int purchaseQuantity, {
+    double? cost,
+    String? supplier,
+  }) async {
     try {
-      final response = await post(
-        '/items/$itemId/purchase', 
-        data: {
-          'purchase_quantity': purchaseQuantity,
-        }
-      );
+      final response = await post('/items/$itemId/purchase', data: {
+        'purchase_quantity': purchaseQuantity,
+        if (cost != null) 'cost': cost,
+        if (supplier != null) 'supplier': supplier,
+      });
       return DailyItem.fromJson(response.data);
     } catch (e) {
       throw Exception('商品の購入に失敗しました: $e');
@@ -178,7 +184,8 @@ class ApiService {
     } catch (e) {
       // より詳細なエラー情報を提供
       if (e.toString().contains('バックエンドサーバーに接続できません')) {
-        throw Exception('バックエンドサーバー(${ApiConfig.baseUrl})に接続できません。\n1. バックエンドサーバーが起動しているか確認してください\n2. API設定が正しいか確認してください');
+        throw Exception(
+            'バックエンドサーバー(${ApiConfig.baseUrl})に接続できません。\n1. バックエンドサーバーが起動しているか確認してください\n2. API設定が正しいか確認してください');
       }
       throw Exception('消費記録の取得に失敗しました: $e');
     }

@@ -132,7 +132,10 @@ final GoRouter _router = GoRouter(
     ),
     GoRoute(
       path: '/register',
-      builder: (context, state) => const RegisterScreen(),
+      builder: (context, state) {
+        final username = state.uri.queryParameters['username'];
+        return RegisterScreen(initialUsername: username);
+      },
     ),
     GoRoute(
       path: '/home',

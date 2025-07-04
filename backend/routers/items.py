@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from database import get_db
-from models import DailyItem, Category, User
-from schemas import DailyItem as DailyItemSchema, DailyItemCreate, DailyItemUpdate, Category as CategorySchema
+from models import DailyItem, Category, User, ReplenishmentRecord
+from schemas import DailyItem as DailyItemSchema, DailyItemCreate, DailyItemUpdate, Category as CategorySchema, ItemPurchaseRequest
 from routers.auth import get_current_user
 
 router = APIRouter()
@@ -128,7 +128,7 @@ async def get_categories(db: Session = Depends(get_db)):
 @router.post("/{item_id}/purchase", response_model=DailyItemSchema)
 async def purchase_item(
     item_id: int,
-    purchase_quantity: int,
+    purchase_request: ItemPurchaseRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -144,15 +144,25 @@ async def purchase_item(
             detail="日用品が見つかりません"
         )
     
-    if purchase_quantity <= 0:
+    if purchase_request.purchase_quantity <= 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="購入数量は1以上である必要があります"
         )
     
     # 在庫量を増やす
-    item.current_quantity += purchase_quantity
+    item.current_quantity += purchase_request.purchase_quantity
     
+    # 補充記録を作成
+    replenishment_record = ReplenishmentRecord(
+        user_id=current_user.id,
+        item_id=item.id,
+        replenished_quantity=purchase_request.purchase_quantity,
+        cost=purchase_request.cost,
+        supplier=purchase_request.supplier
+    )
+    
+    db.add(replenishment_record)
     db.commit()
     db.refresh(item)
     return item 

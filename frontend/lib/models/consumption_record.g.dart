@@ -39,9 +39,8 @@ ConsumptionRecordCreate _$ConsumptionRecordCreateFromJson(
     ConsumptionRecordCreate(
       itemId: (json['item_id'] as num).toInt(),
       consumedQuantity: (json['consumed_quantity'] as num).toInt(),
-      consumptionDate: json['consumption_date'] == null
-          ? null
-          : DateTime.parse(json['consumption_date'] as String),
+      consumptionDate: ConsumptionRecordCreate._stringToDate(
+          json['consumption_date'] as String?),
       remainingQuantity: (json['remaining_quantity'] as num?)?.toInt(),
       notes: json['notes'] as String?,
     );
@@ -51,7 +50,8 @@ Map<String, dynamic> _$ConsumptionRecordCreateToJson(
     <String, dynamic>{
       'item_id': instance.itemId,
       'consumed_quantity': instance.consumedQuantity,
-      'consumption_date': instance.consumptionDate?.toIso8601String(),
+      'consumption_date':
+          ConsumptionRecordCreate._dateToString(instance.consumptionDate),
       'remaining_quantity': instance.remainingQuantity,
       'notes': instance.notes,
     };

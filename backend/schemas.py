@@ -70,6 +70,12 @@ class DailyItemUpdate(BaseModel):
     price: Optional[float] = None
     category_id: Optional[int] = None
 
+# 在庫追加用スキーマ
+class ItemPurchaseRequest(BaseModel):
+    purchase_quantity: int
+    cost: Optional[float] = None
+    supplier: Optional[str] = None
+
 class DailyItem(DailyItemBase):
     id: int
     user_id: int

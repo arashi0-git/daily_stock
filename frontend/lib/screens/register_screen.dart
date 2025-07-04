@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  final String? initialUsername;
+
+  const RegisterScreen({super.key, this.initialUsername});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -17,6 +19,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // 初期ユーザー名を設定
+    if (widget.initialUsername != null && widget.initialUsername!.isNotEmpty) {
+      _nameController.text = widget.initialUsername!;
+    }
+  }
 
   @override
   void dispose() {
@@ -41,7 +52,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _emailController.text,
         _passwordController.text,
       );
-      
+
       if (mounted) {
         context.go('/home');
       }
@@ -161,4 +172,4 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
-} 
+}

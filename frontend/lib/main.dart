@@ -37,54 +37,88 @@ class MyApp extends StatelessWidget {
             title: '日用品管理アプリ',
             theme: ThemeData(
               useMaterial3: true,
-              // アプリ全体のカラーテーマを定義
-              primarySwatch: Colors.deepPurple,
-              scaffoldBackgroundColor: Colors.grey[100], // 背景色を少しグレーに
+              // Modern inventory management app color scheme
+              primarySwatch: Colors.blue,
+              scaffoldBackgroundColor: const Color(0xFFF8FAFC), // Modern light background
               colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.deepPurple,
+                seedColor: const Color(0xFF3B82F6), // Modern blue
                 brightness: Brightness.light,
+                surface: Colors.white,
+                onSurface: const Color(0xFF1F2937),
+                surfaceVariant: const Color(0xFFF1F5F9),
+                outline: const Color(0xFFE2E8F0),
               ),
               appBarTheme: const AppBarTheme(
-                backgroundColor: Colors.deepPurple,
-                foregroundColor: Colors.white, // AppBarの文字色
-                elevation: 2.0,
-                centerTitle: true,
+                backgroundColor: Color(0xFF1E40AF), // Darker blue for depth
+                foregroundColor: Colors.white,
+                elevation: 0, // Flat design
+                centerTitle: false, // Left-aligned modern style
+                titleTextStyle: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
               ),
               cardTheme: CardThemeData(
-                elevation: 4.0, // カードの影
-                shadowColor: Colors.black26,
+                elevation: 2.0, // Subtle shadow
+                shadowColor: Colors.black12,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0), // カードの角を丸くする
+                  borderRadius: BorderRadius.circular(16.0), // More rounded corners
                 ),
-                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                color: Colors.white,
               ),
-              // フローティングアクションボタンのテーマ
               floatingActionButtonTheme: const FloatingActionButtonThemeData(
-                backgroundColor: Colors.deepPurpleAccent,
+                backgroundColor: Color(0xFF3B82F6),
                 foregroundColor: Colors.white,
+                elevation: 4,
               ),
               inputDecorationTheme: InputDecorationTheme(
                 filled: true,
+                fillColor: const Color(0xFFF8FAFC),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(
-                    color: Color(0xFF6750A4),
+                    color: Color(0xFF3B82F6),
                     width: 2,
                   ),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
-                  vertical: 12,
+                  vertical: 16,
                 ),
               ),
               elevatedButtonTheme: ElevatedButtonThemeData(
                 style: ElevatedButton.styleFrom(
                   elevation: 2,
-                  shadowColor: Colors.black26,
+                  shadowColor: Colors.black12,
+                  backgroundColor: const Color(0xFF3B82F6),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 16,
+                  ),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              filledButtonTheme: FilledButtonThemeData(
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF3B82F6),
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -94,15 +128,37 @@ class MyApp extends StatelessWidget {
                   ),
                 ),
               ),
-              filledButtonTheme: FilledButtonThemeData(
-                style: FilledButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 16,
-                  ),
+              // Modern typography
+              textTheme: const TextTheme(
+                headlineLarge: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1F2937),
+                ),
+                headlineMedium: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1F2937),
+                ),
+                titleLarge: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1F2937),
+                ),
+                titleMedium: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF374151),
+                ),
+                bodyLarge: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFF374151),
+                ),
+                bodyMedium: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFF6B7280),
                 ),
               ),
             ),

@@ -23,16 +23,28 @@ class _ItemsScreenState extends State<ItemsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: const Text('商品管理'),
         leading: IconButton(
           onPressed: () => context.go('/home'),
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_rounded),
+          style: IconButton.styleFrom(
+            backgroundColor: Colors.white.withOpacity(0.2),
+            foregroundColor: Colors.white,
+          ),
         ),
         actions: [
-          IconButton(
-            onPressed: () => _showAddItemDialog(context),
-            icon: const Icon(Icons.add),
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            child: IconButton(
+              onPressed: () => _showAddItemDialog(context),
+              icon: const Icon(Icons.add_rounded),
+              style: IconButton.styleFrom(
+                backgroundColor: Colors.white.withOpacity(0.2),
+                foregroundColor: Colors.white,
+              ),
+            ),
           ),
         ],
       ),
@@ -64,20 +76,55 @@ class _ItemsScreenState extends State<ItemsScreen> {
           }
 
           if (itemsProvider.items.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.inventory, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
+                  Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF3B82F6).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(60),
+                    ),
+                    child: const Icon(
+                      Icons.inventory_2_rounded,
+                      size: 64,
+                      color: Color(0xFF3B82F6),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
                   Text(
                     '商品がありません',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF1F2937),
+                        ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   Text(
-                    '右上の + ボタンから商品を追加してください',
-                    style: TextStyle(color: Colors.grey),
+                    '商品を追加して在庫管理を始めましょう',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: const Color(0xFF6B7280),
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  ElevatedButton.icon(
+                    onPressed: () => _showAddItemDialog(context),
+                    icon: const Icon(Icons.add_rounded),
+                    label: const Text('新しい商品を追加'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF3B82F6),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -85,32 +132,149 @@ class _ItemsScreenState extends State<ItemsScreen> {
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(24),
             itemCount: itemsProvider.items.length,
             itemBuilder: (context, index) {
               final item = itemsProvider.items[index];
+              final isLowStock = item.currentQuantity <= item.minimumThreshold;
+              
               return Card(
-                margin: const EdgeInsets.only(bottom: 8),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    child: Text(item.name.substring(0, 1)),
-                  ),
-                  title: Text(item.name),
-                  subtitle: Text('在庫: ${item.currentQuantity}'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        onPressed: () => context.go('/items/${item.id}'),
-                        icon: const Icon(Icons.edit),
-                      ),
-                      IconButton(
-                        onPressed: () => _showDeleteConfirmation(context, item.id),
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                      ),
-                    ],
-                  ),
+                elevation: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: InkWell(
                   onTap: () => context.go('/items/${item.id}'),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: isLowStock 
+                          ? LinearGradient(
+                              colors: [
+                                Colors.red.shade50,
+                                Colors.red.shade25,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            )
+                          : null,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          // 商品アイコン
+                          Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              color: isLowStock 
+                                  ? Colors.red.shade100
+                                  : const Color(0xFF3B82F6).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Icon(
+                              Icons.inventory_2_rounded,
+                              color: isLowStock 
+                                  ? Colors.red.shade600
+                                  : const Color(0xFF3B82F6),
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          
+                          // 商品情報
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.name,
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                        color: const Color(0xFF1F2937),
+                                      ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: isLowStock 
+                                            ? Colors.red.shade100
+                                            : Colors.green.shade100,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            isLowStock 
+                                                ? Icons.warning_rounded
+                                                : Icons.check_circle_rounded,
+                                            size: 16,
+                                            color: isLowStock 
+                                                ? Colors.red.shade600
+                                                : Colors.green.shade600,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            '在庫: ${item.currentQuantity}${item.unit}',
+                                            style: TextStyle(
+                                              color: isLowStock 
+                                                  ? Colors.red.shade600
+                                                  : Colors.green.shade600,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '最低: ${item.minimumThreshold}${item.unit}',
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: const Color(0xFF6B7280),
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          // アクションボタン
+                          Column(
+                            children: [
+                              IconButton(
+                                onPressed: () => context.go('/items/${item.id}'),
+                                icon: const Icon(Icons.edit_rounded),
+                                style: IconButton.styleFrom(
+                                  backgroundColor: const Color(0xFF3B82F6).withOpacity(0.1),
+                                  foregroundColor: const Color(0xFF3B82F6),
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () => _showDeleteConfirmation(context, item.id),
+                                icon: const Icon(Icons.delete_rounded),
+                                style: IconButton.styleFrom(
+                                  backgroundColor: Colors.red.shade50,
+                                  foregroundColor: Colors.red.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               );
             },

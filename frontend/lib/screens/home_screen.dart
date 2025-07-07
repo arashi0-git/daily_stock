@@ -36,25 +36,40 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text('日用品管理アプリ'),
+        title: const Text('ダッシュボード'),
         actions: [
           // 推奨更新ボタン
-          IconButton(
-            onPressed: () {
-              context
-                  .read<RecommendationsProvider>()
-                  .generateAllRecommendations();
-            },
-            icon: const Icon(Icons.refresh),
-            tooltip: '推奨を更新',
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            child: IconButton(
+              onPressed: () {
+                context
+                    .read<RecommendationsProvider>()
+                    .generateAllRecommendations();
+              },
+              icon: const Icon(Icons.refresh_rounded),
+              tooltip: '推奨を更新',
+              style: IconButton.styleFrom(
+                backgroundColor: Colors.white.withOpacity(0.2),
+                foregroundColor: Colors.white,
+              ),
+            ),
           ),
-          IconButton(
-            onPressed: () {
-              Provider.of<AuthProvider>(context, listen: false).logout();
-              context.go('/login');
-            },
-            icon: const Icon(Icons.logout),
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            child: IconButton(
+              onPressed: () {
+                Provider.of<AuthProvider>(context, listen: false).logout();
+                context.go('/login');
+              },
+              icon: const Icon(Icons.logout_rounded),
+              style: IconButton.styleFrom(
+                backgroundColor: Colors.white.withOpacity(0.2),
+                foregroundColor: Colors.white,
+              ),
+            ),
           ),
         ],
       ),
@@ -68,7 +83,51 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 在庫アラートセクション（改善版）- タイトル直下に配置
+              // Header section with welcome message
+              Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFF1E40AF),
+                      Color(0xFF3B82F6),
+                    ],
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'おはようございます',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        '在庫管理ダッシュボード',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildQuickStatsRow(context),
+                    ],
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // 在庫アラートセクション
               _buildEnhancedStockAlertSection(context),
 
               // 推奨通知エリア
@@ -79,84 +138,233 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // メニューグリッド
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'メニュー',
+                      'クイックアクション',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF1F2937),
                           ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     GridView.count(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       crossAxisCount: 2,
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
+                      childAspectRatio: 1.2,
                       children: [
-                        _buildMenuCard(
+                        _buildModernMenuCard(
                           context,
                           '商品管理',
-                          Icons.inventory,
-                          '商品の追加・編集・削除',
+                          Icons.inventory_2_rounded,
+                          '商品の追加・編集',
+                          const Color(0xFF10B981),
                           () => context.go('/items'),
                         ),
-                        _buildMenuCard(
+                        _buildModernMenuCard(
                           context,
                           '消費記録',
-                          Icons.shopping_cart,
-                          '商品の消費を記録',
+                          Icons.shopping_cart_rounded,
+                          '消費を記録',
+                          const Color(0xFF8B5CF6),
                           () => context.go('/consumption'),
                         ),
-                        _buildMenuCard(
-                          context,
-                          '消費推奨',
-                          Icons.lightbulb,
-                          '購入推奨とアドバイス',
-                          () => _showRecommendationsDialog(context),
-                        ),
-                        _buildMenuCard(
+                        _buildModernMenuCard(
                           context,
                           '統計・分析',
-                          Icons.analytics,
-                          '消費傾向と在庫予測',
+                          Icons.analytics_rounded,
+                          '消費傾向と予測',
+                          const Color(0xFFF59E0B),
                           () => context.go('/analytics'),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      children: [
-                        _buildMenuCard(
+                        _buildModernMenuCard(
                           context,
-                          '設定',
-                          Icons.settings,
-                          'アプリの設定変更',
-                          () => _showSettingsDialog(context),
-                        ),
-                        _buildMenuCard(
-                          context,
-                          'ヘルプ',
-                          Icons.help_outline,
-                          '使い方とサポート',
-                          () => _showHelpDialog(context),
+                          '推奨アドバイス',
+                          Icons.lightbulb_rounded,
+                          '購入推奨を表示',
+                          const Color(0xFFEF4444),
+                          () => _showRecommendationsDialog(context),
                         ),
                       ],
                     ),
+                    const SizedBox(height: 32),
                   ],
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildModernMenuCard(
+    BuildContext context,
+    String title,
+    IconData icon,
+    String description,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return Card(
+      elevation: 4,
+      shadowColor: color.withOpacity(0.2),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                color.withOpacity(0.1),
+                color.withOpacity(0.05),
+              ],
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 28,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF1F2937),
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  description,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: const Color(0xFF6B7280),
+                        fontWeight: FontWeight.w500,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickStatsRow(BuildContext context) {
+    return Consumer<ItemsProvider>(
+      builder: (context, itemsProvider, child) {
+        final totalItems = itemsProvider.items.length;
+        final lowStockItems = itemsProvider.items
+            .where((item) => item.currentQuantity <= item.minimumThreshold)
+            .length;
+        final normalStockItems = totalItems - lowStockItems;
+        
+        return Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                context,
+                '合計商品',
+                totalItems.toString(),
+                Icons.inventory_2_rounded,
+                Colors.white,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildStatCard(
+                context,
+                '在庫不足',
+                lowStockItems.toString(),
+                Icons.warning_rounded,
+                lowStockItems > 0 ? Colors.red.shade300 : Colors.white,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildStatCard(
+                context,
+                '在庫十分',
+                normalStockItems.toString(),
+                Icons.check_circle_rounded,
+                Colors.green.shade300,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildStatCard(
+    BuildContext context,
+    String title,
+    String value,
+    IconData icon,
+    Color iconColor,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2),
+        ),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            color: iconColor,
+            size: 24,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
@@ -308,7 +516,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: recommendation.urgencyColor
-                                      .withValues(alpha: 0.2),
+                                      .withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
@@ -450,8 +658,8 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Colors.green.withValues(alpha: 0.1),
-                  Colors.teal.withValues(alpha: 0.05),
+                  Colors.green.withOpacity(0.1),
+                  Colors.teal.withOpacity(0.05),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -523,26 +731,26 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          margin: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Colors.red.withValues(alpha: 0.1),
-                Colors.orange.withValues(alpha: 0.05),
+                Colors.red.shade50,
+                Colors.red.shade25,
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.red.shade400,
-              width: 2,
+              color: Colors.red.shade200,
+              width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.red.withValues(alpha: 0.2),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
+                color: Colors.red.withOpacity(0.1),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
               ),
             ],
           ),
@@ -596,7 +804,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.red.shade600.withValues(alpha: 0.2),
+                        color: Colors.red.shade600.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -620,7 +828,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border:
-                        Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                        Border.all(color: Colors.red.withOpacity(0.3)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -636,10 +844,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             margin: const EdgeInsets.only(bottom: 8),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.red.withValues(alpha: 0.05),
+                              color: Colors.red.withOpacity(0.05),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                  color: Colors.red.withValues(alpha: 0.2)),
+                                  color: Colors.red.withOpacity(0.2)),
                             ),
                             child: Row(
                               children: [
@@ -1187,7 +1395,7 @@ A: 設定画面からデータエクスポート後に初期化できます
                 decoration: BoxDecoration(
                   color: isUrgent 
                       ? Colors.red.shade100 
-                      : Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                      : Theme.of(context).primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(

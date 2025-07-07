@@ -195,14 +195,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       {String? subtitle}) {
     return Card(
       elevation: 4,
-      shadowColor: color.withValues(alpha: 0.3),
+      shadowColor: color.withOpacity(0.3),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           gradient: LinearGradient(
             colors: [
-              color.withValues(alpha: 0.1),
-              color.withValues(alpha: 0.05),
+              color.withOpacity(0.1),
+              color.withOpacity(0.05),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -218,7 +218,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.2),
+                      color: color.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(icon, color: color, size: 24),

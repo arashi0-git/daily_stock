@@ -154,7 +154,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
                           ? LinearGradient(
                               colors: [
                                 Colors.red.shade50,
-                                Colors.red.shade25,
+                                Colors.red.shade100,
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,

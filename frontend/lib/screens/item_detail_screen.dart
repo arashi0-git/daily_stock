@@ -831,6 +831,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen>
           .purchaseItem(widget.itemId, quantity);
 
       // 商品データを再読み込み
+      await Provider.of<ItemsProvider>(context, listen: false).fetchItems();
       _loadItemData();
 
       if (mounted) {

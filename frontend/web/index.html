@@ -22,7 +22,7 @@
   <meta name="description" content="Daily Stock Manager - 日用品管理アプリ">
 
   <!-- iOS meta tags & icons -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Daily Stock Manager">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
@@ -59,11 +59,12 @@
       _flutter.loader.load({
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
+        },
+        onEntrypointLoaded: function(engineInitializer) {
+          engineInitializer.initializeEngine().then(function(appRunner) {
+            appRunner.runApp();
+          });
         }
-      }).then(function (engineInitializer) {
-        return engineInitializer.initializeEngine();
-      }).then(function (appRunner) {
-        appRunner.runApp();
       });
     });
   </script>

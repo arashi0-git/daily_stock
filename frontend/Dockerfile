@@ -14,7 +14,7 @@ RUN flutter pub get
 COPY . .
 
 # Build for web
-RUN flutter build web --release
+RUN flutter build web --release --base-href="/"
 
 # Use nginx to serve the built web app
 FROM nginx:alpine

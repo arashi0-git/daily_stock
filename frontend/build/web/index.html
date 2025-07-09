@@ -1,93 +1,196 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="/">
-
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="Daily Stock Manager - 日用品管理アプリ">
-
-  <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Daily Stock Manager">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png" />
-
   <title>Daily Stock Manager</title>
   <link rel="manifest" href="manifest.json">
-  
-  <!-- Custom CSS for modern styling -->
   <link rel="stylesheet" href="styles.css">
-  
-  <!-- Google Fonts for better typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- Material Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
+  
+  <!-- Flutter buildConfig setup -->
   <script>
-    // The value below is injected by flutter build, do not touch.
+    // Ensure _flutter object exists
+    window._flutter = window._flutter || {};
+    
+    // Set buildConfig before any Flutter script loads
+    window._flutter.buildConfig = {
+      engineRevision: "dd93de6fb1",
+      builds: [
+        {
+          compileTarget: "dart2js",
+          renderer: "canvaskit",
+          mainWasmPath: "main.dart.wasm",
+        }
+      ]
+    };
+    
+    // Service worker version
     var serviceWorkerVersion = "***flutter_service_worker_version***";
   </script>
-  <!-- This script adds the flutter initialization JS code -->
-  <script src="flutter.js" defer></script>
 </head>
 
 <body>
+  <div id="loading" style="
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-family: Inter, sans-serif;
+    z-index: 1000;
+  ">
+    <div style="margin-bottom: 20px;">📱 アプリケーションを読み込み中...</div>
+    <div style="font-size: 12px; color: #666;">Flutter Web 3.32.5</div>
+  </div>
+
+  <script src="flutter.js" defer></script>
+  
   <script>
-    window.addEventListener('load', function (ev) {
-      // Set buildConfig before loading
-      if (!window._flutter) {
-        window._flutter = {};
-      }
-      if (!window._flutter.buildConfig) {
-        window._flutter.buildConfig = {
-          engineRevision: "dd93de6fb1",
-          builds: [
-            {
-              compileTarget: "dart2js",
-              renderer: "canvaskit",
-              mainWasmPath: "main.dart.wasm",
+    // Multiple initialization strategies
+    (function() {
+      let initAttempts = 0;
+      const maxAttempts = 3;
+      
+      function attemptFlutterInit() {
+        initAttempts++;
+        console.log(`Flutter initialization attempt ${initAttempts}/${maxAttempts}`);
+        
+        if (!window._flutter) {
+          console.error('_flutter object not available');
+          retryOrFail();
+          return;
+        }
+        
+        if (!window._flutter.loader) {
+          console.error('_flutter.loader not available');
+          retryOrFail();
+          return;
+        }
+        
+        // Strategy 1: Modern initialization with onEntrypointLoaded
+        try {
+          window._flutter.loader.load({
+            serviceWorker: {
+              serviceWorkerVersion: serviceWorkerVersion,
+            },
+            onEntrypointLoaded: function(engineInitializer) {
+              engineInitializer.initializeEngine().then(function(appRunner) {
+                document.getElementById('loading').style.display = 'none';
+                appRunner.runApp();
+                console.log('Flutter app started successfully (Strategy 1)');
+              }).catch(function(error) {
+                console.warn('Strategy 1 failed:', error);
+                tryStrategy2();
+              });
             }
-          ]
-        };
+          });
+        } catch (error) {
+          console.warn('Strategy 1 exception:', error);
+          tryStrategy2();
+        }
       }
       
-      // Download main.dart.js
-      _flutter.loader.load({
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
+      function tryStrategy2() {
+        console.log('Trying Strategy 2: Promise-based initialization');
+        try {
+          window._flutter.loader.load({
+            serviceWorker: {
+              serviceWorkerVersion: serviceWorkerVersion,
+            }
+          }).then(function(engineInitializer) {
+            return engineInitializer.initializeEngine();
+          }).then(function(appRunner) {
+            document.getElementById('loading').style.display = 'none';
+            appRunner.runApp();
+            console.log('Flutter app started successfully (Strategy 2)');
+          }).catch(function(error) {
+            console.warn('Strategy 2 failed:', error);
+            tryStrategy3();
+          });
+        } catch (error) {
+          console.warn('Strategy 2 exception:', error);
+          tryStrategy3();
         }
-      }).then(function(engineInitializer) {
-        return engineInitializer.initializeEngine();
-      }).then(function(appRunner) {
-        return appRunner.runApp();
-      }).catch(function(error) {
-        console.error('Flutter initialization error:', error);
-        // フォールバック処理
-        document.body.innerHTML = '<div style="padding: 20px; text-align: center;">アプリケーションの読み込みに失敗しました。ページを再読み込みしてください。</div>';
-      });
-    });
+      }
+      
+      function tryStrategy3() {
+        console.log('Trying Strategy 3: Simple initialization');
+        try {
+          window._flutter.loader.load().then(function(engineInitializer) {
+            return engineInitializer.initializeEngine();
+          }).then(function(appRunner) {
+            document.getElementById('loading').style.display = 'none';
+            appRunner.runApp();
+            console.log('Flutter app started successfully (Strategy 3)');
+          }).catch(function(error) {
+            console.error('Strategy 3 failed:', error);
+            retryOrFail();
+          });
+        } catch (error) {
+          console.error('Strategy 3 exception:', error);
+          retryOrFail();
+        }
+      }
+      
+      function retryOrFail() {
+        if (initAttempts < maxAttempts) {
+          console.log(`Retrying in 1 second... (${initAttempts}/${maxAttempts})`);
+          setTimeout(attemptFlutterInit, 1000);
+        } else {
+          handleFinalError();
+        }
+      }
+      
+      function handleFinalError() {
+        console.error('All Flutter initialization strategies failed');
+        document.getElementById('loading').innerHTML = `
+          <div style="color: #d32f2f; padding: 20px; text-align: center;">
+            <div style="font-size: 24px; margin-bottom: 15px;">⚠️</div>
+            <div style="font-size: 18px; font-weight: 600; margin-bottom: 10px;">
+              アプリケーションの読み込みに失敗しました
+            </div>
+            <div style="font-size: 14px; color: #666; margin-bottom: 20px;">
+              Flutter Web初期化エラー (試行回数: ${initAttempts})
+            </div>
+            <button onclick="window.location.reload()" style="
+              padding: 12px 24px;
+              background: #1976d2;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 14px;
+              font-weight: 500;
+            ">
+              🔄 ページを再読み込み
+            </button>
+            <div style="margin-top: 15px; font-size: 12px; color: #999;">
+              問題が続く場合は、ブラウザのキャッシュをクリアしてください
+            </div>
+          </div>
+        `;
+      }
+      
+      // Wait for DOM and Flutter script to load
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          setTimeout(attemptFlutterInit, 100);
+        });
+      } else {
+        setTimeout(attemptFlutterInit, 100);
+      }
+    })();
   </script>
 </body>
-
 </html>
